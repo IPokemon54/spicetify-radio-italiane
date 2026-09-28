@@ -1,0 +1,13 @@
+bridge/bin/node.exe
+bridge/bin/ffmpeg.exe
+bridge/service.pid
+*.html
+zeta-js/
+app.js
+detail.js
+verifica-radio.json
+dist/
+cryptoJS.min.js
+hls.min.js
+logos.js
+metadata-helper-it.js
