@@ -43,10 +43,10 @@ Il servizio ascolta soltanto su 127.0.0.1, richiede una chiave locale e accetta 
 Apri PowerShell e incolla questo comando:
 
 ```powershell
-irm https://raw.githubusercontent.com/IPokemon54/spicetify-radio-italiane/main/quick-install.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/IPokemon54/spicetify-radio-italiane/main/install.ps1 | iex
 ```
 
-Il comando scarica l'ultima release, esegue l'installer e rimuove automaticamente i file temporanei. Prima di eseguirlo puoi leggere [quick-install.ps1](quick-install.ps1) direttamente nel repository.
+Il comando scarica l'ultima release, esegue l'installer e rimuove automaticamente i file temporanei. Prima di eseguirlo puoi leggere [install.ps1](install.ps1) direttamente nel repository.
 
 ### Requisiti
 
