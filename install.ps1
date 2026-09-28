@@ -1,4 +1,23 @@
 $ErrorActionPreference = 'Stop'
+if (-not $PSScriptRoot -or -not (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'manifest.json'))) {
+ $releaseUrl = 'https://github.com/IPokemon54/spicetify-radio-italiane/releases/latest/download/Radio-Italiane-Windows-v3.zip'
+ $downloadDir = Join-Path ([IO.Path]::GetTempPath()) ('radio-on-spotify-' + [guid]::NewGuid().ToString('N'))
+ $downloadArchive = Join-Path $downloadDir 'radio-on-spotify.zip'
+ try {
+  New-Item -ItemType Directory -Force -Path $downloadDir | Out-Null
+  Write-Host 'Download di Radio on Spotify...'
+  Invoke-WebRequest -UseBasicParsing -Uri $releaseUrl -OutFile $downloadArchive
+  Expand-Archive -LiteralPath $downloadArchive -DestinationPath $downloadDir -Force
+  $downloadedInstaller = Get-ChildItem -LiteralPath $downloadDir -Filter 'install.ps1' -Recurse | Select-Object -First 1
+  if (-not $downloadedInstaller) { throw 'Installer non trovato nella release.' }
+  Get-ChildItem -LiteralPath $downloadedInstaller.Directory.FullName -File -Recurse | Unblock-File -ErrorAction SilentlyContinue
+  & $downloadedInstaller.FullName
+  if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) { throw 'Installazione non completata.' }
+ } finally {
+  if (Test-Path -LiteralPath $downloadDir) { Remove-Item -LiteralPath $downloadDir -Recurse -Force -ErrorAction SilentlyContinue }
+ }
+ return
+}
 $radioConfig = (& spicetify -c | Select-Object -Last 1).Trim()
 if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $radioConfig)) { throw 'Configurazione Spicetify non trovata.' }
 $radioTarget = Join-Path (Split-Path $radioConfig) 'CustomApps\radio-italiane'
