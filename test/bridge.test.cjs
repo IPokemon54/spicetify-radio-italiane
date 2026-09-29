@@ -26,3 +26,10 @@ test('worldwide usa il globo SVG locale', () => {
  const server=fs.readFileSync(path.join(__dirname,'..','bridge','server.cjs'),'utf8');
  assert.match(server,/flagCode==='arab'\|\|flagCode==='worldwide'/);
 });
+
+test('il muto conserva il volume radio e non viene annullato dalla sincronizzazione', () => {
+ const sidebar=fs.readFileSync(path.join(__dirname,'..','sidebar.js'),'utf8');
+ assert.match(sidebar,/radioMuted\|\|next<=0\.001/);
+ assert.match(sidebar,/\^Disattiva audio\$\|\^Mute\$/i);
+ assert.doesNotMatch(sidebar,/setTimeout\(\(\)=>syncVolume\(volumeControl\(\),true\),0\)/);
+});

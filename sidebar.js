@@ -15,7 +15,7 @@
   const audio=document.getElementById('ri-radio-audio')||new Audio();audio.id='ri-radio-audio';audio.preload='none';audio.style.display='none';audio.setAttribute('aria-hidden','true');if(!audio.isConnected)document.body.append(audio);let state={station:null,status:'Scegli una radio',playing:false};let request=0,timer=null,ignoreSpotifyPause=false,fadingRadio=false,radioFadeTask=null,currentRadioTrack=null,metadataStationId=null,lastMetadataFetch=0;const listeners=new Set();
   function emit(){document.body.classList.toggle('ri-radio-live',state.playing||state.status==='Connessione…');updateNowPlaying();syncNativeControls();protectLiveControls();for(const listener of listeners)listener({...state});window.dispatchEvent(new CustomEvent('ri:state',{detail:{...state}}))}
   function set(next){state={...state,...next};emit()}
-  let commandedVolume=null,radioVolumeSlider=null;
+  let commandedVolume=null,radioVolumeSlider=null,radioMuted=false;
   function normalizationEnabled(){return localStorage.getItem('ri-normalize-volume')!=='false'}
   function syncSpotifyNormalizationSetting(){
    for(const element of document.querySelectorAll('label,[role="switch"],input[type="checkbox"]')){
@@ -46,16 +46,16 @@
     const next=Math.max(0,Math.min(1,value));
     if(trustControl)commandedVolume=next;
     if(audio.volume!==next)audio.volume=next;
-    const shouldMute=next<=0.001;
+    const shouldMute=radioMuted||next<=0.001;
     if(audio.muted!==shouldMute)audio.muted=shouldMute;
-    if(radioVolumeSlider){radioVolumeSlider.value=String(next);radioVolumeSlider.style.setProperty('--ri-volume',`${next*100}%`)}
+    const shown=shouldMute?0:next;if(radioVolumeSlider){radioVolumeSlider.value=String(shown);radioVolumeSlider.style.setProperty('--ri-volume',`${shown*100}%`)}
    }
   }
   function applyVolumeCommand(value){
    const numeric=Number(typeof value==='object'?(value?.volume??value?.value):value);
    if(!Number.isFinite(numeric))return;
    commandedVolume=Math.max(0,Math.min(1,numeric>1?numeric/100:numeric));
-   audio.volume=commandedVolume;audio.muted=commandedVolume===0;
+   radioMuted=commandedVolume===0;audio.volume=commandedVolume;audio.muted=radioMuted;
    if(radioVolumeSlider){radioVolumeSlider.value=String(commandedVolume);radioVolumeSlider.style.setProperty('--ri-volume',`${commandedVolume*100}%`)}
   }
   function ensureRadioVolumeSlider(){
@@ -193,7 +193,7 @@
   document.addEventListener('input',event=>{const control=volumeControl();if(control&&(event.target===control||control.contains(event.target)))syncVolume(control,true)},true);
   document.addEventListener('change',event=>{const control=volumeControl();if(control&&(event.target===control||control.contains(event.target)))syncVolume(control,true)},true);
   document.addEventListener('change',()=>setTimeout(syncSpotifyNormalizationSetting,0),true);
-  document.addEventListener('click',event=>{if(event.target.closest('button[aria-label="Disattiva audio"],button[aria-label="Riattiva audio"],button[aria-label="Mute"],button[aria-label="Unmute"]'))setTimeout(()=>syncVolume(volumeControl(),true),0)},true);
+  document.addEventListener('click',event=>{const button=event.target.closest('button[aria-label="Disattiva audio"],button[aria-label="Riattiva audio"],button[aria-label="Mute"],button[aria-label="Unmute"]');if(!button||!state.playing)return;const label=button.getAttribute('aria-label')||'';radioMuted=/^Disattiva audio$|^Mute$/i.test(label);audio.muted=radioMuted;syncVolume()},true);
   function handleSpotifyPlayback(){
    if(ignoreSpotifyPause||!state.playing)return;
    const check=()=>{if(!ignoreSpotifyPause&&state.playing&&Spicetify.Player.isPlaying())fadeRadioOut('Interrotta da Spotify')};
