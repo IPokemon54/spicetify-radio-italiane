@@ -7,9 +7,10 @@ const {stations, findStation, resolveStation, resolveLogo} = require('./resolver
 const {countries, catalog} = require('./world.cjs');
 const {createRelay} = require('./relay.cjs');
 const {getMetadata,splitTrack} = require('./metadata.cjs');
+const {readConfig} = require('./config.cjs');
 const metadata = new Map();
 const relayReady=createRelay((id,value)=>{if(id)metadata.set(id,{value,updated:Date.now()})});
-const config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
+const config = readConfig(path.join(__dirname, 'config.json'));
 const ffmpeg = path.join(__dirname, 'bin', 'ffmpeg.exe');
 const active = new Set();
 const origins = new Set(['https://xpui.app.spotify.com', 'https://zlink.app.spotify.com']);
@@ -66,7 +67,7 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === '/health') {res.writeHead(200, {'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify({ok:true,version:2,active:active.size}));return;}
   if(url.pathname==='/countries'){res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'public, max-age=86400'});res.end(JSON.stringify(countries));return}
   const catalogCode=/^\/catalog\/([a-z]+)$/.exec(url.pathname)?.[1];if(catalogCode){const result=await catalog(catalogCode,url.searchParams.get('page'),stations);res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(result));return}
-  const flagCode=/^\/flag\/([a-z]+)$/.exec(url.pathname)?.[1];if(flagCode){const country=countries.find(item=>item.code===flagCode);if(!country){res.writeHead(404);res.end();return}if(flagCode==='arab'){const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 60"><rect width="80" height="60" rx="8" fill="#173b32"/><text x="40" y="42" text-anchor="middle" font-size="38">🌍</text></svg>';res.writeHead(200,{'Content-Type':'image/svg+xml','Cache-Control':'public, max-age=86400'});res.end(svg);return}const response=await fetch('https://flagcdn.com/w80/'+flagCode+'.png',{signal:AbortSignal.timeout(8000)});if(!response.ok){res.writeHead(404);res.end();return}const body=Buffer.from(await response.arrayBuffer());res.writeHead(200,{'Content-Type':'image/png','Content-Length':body.length,'Cache-Control':'public, max-age=86400'});res.end(body);return}
+  const flagCode=/^\/flag\/([a-z]+)$/.exec(url.pathname)?.[1];if(flagCode){const country=countries.find(item=>item.code===flagCode);if(!country){res.writeHead(404);res.end();return}if(flagCode==='arab'||flagCode==='worldwide'){const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 60"><rect width="80" height="60" rx="8" fill="#173b32"/><circle cx="40" cy="30" r="20" fill="none" stroke="#25d8df" stroke-width="3"/><path d="M20 30h40M40 10c8 8 8 32 0 40M40 10c-8 8-8 32 0 40M24 20h32M24 40h32" fill="none" stroke="#d9f7f8" stroke-width="2"/></svg>';res.writeHead(200,{'Content-Type':'image/svg+xml','Cache-Control':'public, max-age=86400'});res.end(svg);return}const response=await fetch('https://flagcdn.com/w80/'+flagCode+'.png',{signal:AbortSignal.timeout(8000)});if(!response.ok){res.writeHead(404);res.end();return}const body=Buffer.from(await response.arrayBuffer());res.writeHead(200,{'Content-Type':'image/png','Content-Length':body.length,'Cache-Control':'public, max-age=86400'});res.end(body);return}
   const metadataId=/^\/metadata\/([a-z0-9-]+)$/.exec(url.pathname)?.[1];
   if(metadataId){const station=findStation(metadataId);if(!station){res.writeHead(404);res.end();return}let result=await getMetadata(station);if(!result){const item=metadata.get(metadataId),raw=item&&Date.now()-item.updated<30*60*1000?item.value:'';result=splitTrack(raw)}res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(result));return}
   const logoId = /^\/logo\/([a-z0-9-]+)$/.exec(url.pathname)?.[1];

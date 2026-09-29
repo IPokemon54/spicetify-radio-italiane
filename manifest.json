@@ -15,6 +15,7 @@
   "subfiles_extension": [
     "cover.js",
     "catalog.js",
+    "bridge-config.js",
     "sidebar.js"
   ]
 }

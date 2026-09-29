@@ -9,7 +9,7 @@ New-Item -ItemType Directory -Force -Path $stage, (Join-Path $stage 'assets'), (
 $rootFiles = 'index.js','style.css','manifest.json','README.md','install.ps1','cover.js','catalog.js','bridge-config.js','sidebar.js','radio-italiane-installed.js'
 foreach ($file in $rootFiles) { Copy-Item -LiteralPath (Join-Path $PSScriptRoot $file) -Destination (Join-Path $stage $file) }
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'assets\cover.png') -Destination (Join-Path $stage 'assets\cover.png')
-$bridgeFiles = 'server.cjs','world.cjs','resolver.cjs','relay.cjs','metadata.cjs','config.json','stations.json','descriptions.it.json','stop-service.ps1','NODE-LICENSE.txt','FFMPEG-LICENSE.txt'
+$bridgeFiles = 'server.cjs','config.cjs','world.cjs','resolver.cjs','relay.cjs','metadata.cjs','config.json','stations.json','descriptions.it.json','stop-service.ps1','NODE-LICENSE.txt','FFMPEG-LICENSE.txt'
 foreach ($file in $bridgeFiles) { Copy-Item -LiteralPath (Join-Path $PSScriptRoot ('bridge\' + $file)) -Destination (Join-Path $stage ('bridge\' + $file)) }
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'bridge\bin\node.exe') -Destination (Join-Path $stage 'bridge\bin\node.exe')
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'bridge\bin\ffmpeg.exe') -Destination (Join-Path $stage 'bridge\bin\ffmpeg.exe')

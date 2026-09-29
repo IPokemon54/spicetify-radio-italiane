@@ -1,4 +1,8 @@
 $ErrorActionPreference = 'Stop'
+function Write-Utf8NoBom([string]$Path, [string]$Content) {
+ $encoding = New-Object System.Text.UTF8Encoding($false)
+ [IO.File]::WriteAllText($Path, $Content, $encoding)
+}
 if (-not $PSScriptRoot -or -not (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'manifest.json'))) {
  $releaseUrl = 'https://github.com/IPokemon54/spicetify-radio-italiane/releases/latest/download/Radio-Italiane-Windows-v3.zip'
  $downloadDir = Join-Path ([IO.Path]::GetTempPath()) ('radio-on-spotify-' + [guid]::NewGuid().ToString('N'))
@@ -42,9 +46,9 @@ $random.GetBytes($keyBytes)
 $random.Dispose()
 $radioKey = -join ($keyBytes | ForEach-Object { $_.ToString('x2') })
 $bridgeConfig = @{ port = $radioPort; key = $radioKey } | ConvertTo-Json -Compress
-Set-Content -LiteralPath (Join-Path $radioBridge 'config.json') -Value $bridgeConfig -Encoding UTF8
-$clientConfig = 'const RI_BRIDGE = {"base":"http://127.0.0.1:' + $radioPort + '","key":"' + $radioKey + '"};'
-Set-Content -LiteralPath (Join-Path $radioTarget 'bridge-config.js') -Value $clientConfig -Encoding UTF8
+Write-Utf8NoBom (Join-Path $radioBridge 'config.json') $bridgeConfig
+$clientConfig = 'globalThis.RI_BRIDGE = {"base":"http://127.0.0.1:' + $radioPort + '","key":"' + $radioKey + '"};'
+Write-Utf8NoBom (Join-Path $radioTarget 'bridge-config.js') $clientConfig
 $radioNode = Join-Path $radioBridge 'bin\node.exe'
 $radioServer = Join-Path $radioBridge 'server.cjs'
 $radioLaunch = Join-Path $radioBridge 'launch.vbs'
@@ -52,9 +56,30 @@ $radioVbs = 'CreateObject("WScript.Shell").Run """' + $radioNode + '"" ""' + $ra
 Set-Content -LiteralPath $radioLaunch -Value $radioVbs -Encoding Unicode
 $radioStartup = Join-Path ([Environment]::GetFolderPath('Startup')) 'Radio Italiane.vbs'
 Copy-Item -LiteralPath $radioLaunch -Destination $radioStartup -Force
-Start-Process -FilePath $radioNode -ArgumentList ('"' + $radioServer + '"') -WorkingDirectory $radioBridge -WindowStyle Hidden
+$radioOutputLog = Join-Path $radioBridge 'service.log'
+$radioErrorLog = Join-Path $radioBridge 'service-error.log'
+$radioProcess = Start-Process -FilePath $radioNode -ArgumentList ('"' + $radioServer + '"') -WorkingDirectory $radioBridge -WindowStyle Hidden -RedirectStandardOutput $radioOutputLog -RedirectStandardError $radioErrorLog -PassThru
+$radioHealthy = $false
+$radioHealthUrl = 'http://127.0.0.1:' + $radioPort + '/health?key=' + $radioKey
+for ($attempt = 0; $attempt -lt 30; $attempt++) {
+ Start-Sleep -Milliseconds 250
+ try {
+  $healthResponse = Invoke-WebRequest -UseBasicParsing -Uri $radioHealthUrl -TimeoutSec 2
+  $health = $healthResponse.Content | ConvertFrom-Json
+  if ($health.ok -eq $true) { $radioHealthy = $true; break }
+ } catch {}
+ $radioProcess.Refresh()
+ if ($radioProcess.HasExited) { break }
+}
+if (-not $radioHealthy) {
+ $details = ''
+ if (Test-Path -LiteralPath $radioErrorLog) { $details = (Get-Content -LiteralPath $radioErrorLog -Tail 12 -ErrorAction SilentlyContinue) -join ' ' }
+ if (-not $details -and (Test-Path -LiteralPath $radioOutputLog)) { $details = (Get-Content -LiteralPath $radioOutputLog -Tail 12 -ErrorAction SilentlyContinue) -join ' ' }
+ if (-not $details) { $details = 'Nessun dettaglio scritto dal processo. Controlla che antivirus e firewall non blocchino bridge\bin\node.exe.' }
+ throw "Il bridge locale non si e avviato sulla porta $radioPort. Log: $radioErrorLog. Dettagli: $details"
+}
 & spicetify config custom_apps radio-italiane
 if ($LASTEXITCODE -ne 0) { throw 'Configurazione Spicetify fallita.' }
 & spicetify apply
 if ($LASTEXITCODE -ne 0) { throw 'Applicazione Spicetify fallita.' }
-Write-Host 'Radio Italiane installata. Servizio locale avviato e abilitato al login.'
+Write-Host 'Radio on Spotify installata. Bridge verificato e abilitato al login.'

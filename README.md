@@ -69,7 +69,9 @@ Il comando scarica l'ultima release, esegue l'installer e rimuove automaticament
 6. Se Spotify non si aggiorna automaticamente, chiudilo completamente e riaprilo.
 7. Apri **Radio Italiane** dalla raccolta laterale di Spotify.
 
-L'installer copia l'app nella cartella CustomApps di Spicetify, abilita il servizio locale in Esecuzione automatica, lo avvia senza mostrare finestre e applica la configurazione. Il servizio partirà automaticamente ai successivi accessi a Windows.
+L'installer copia l'app nella cartella CustomApps di Spicetify, abilita il servizio locale in Esecuzione automatica, lo avvia senza mostrare finestre e verifica la risposta del bridge prima di applicare la configurazione. Il servizio partirà automaticamente ai successivi accessi a Windows.
+
+Se il bridge non parte, l'installer interrompe l'operazione e mostra il percorso del log diagnostico `bridge\service-error.log`. Il file di configurazione viene scritto in UTF-8 senza BOM su Windows PowerShell 5.1 e PowerShell 7; il bridge accetta anche configurazioni create in precedenza con BOM.
 
 Se PowerShell blocca lo script perché proviene da Internet, apri le proprietà di `install.ps1`, seleziona **Sblocca**, conferma e riprova. Non è necessario installare separatamente Node.js o FFmpeg: sono già inclusi nella release.
 
