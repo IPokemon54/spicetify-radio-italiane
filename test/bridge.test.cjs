@@ -29,9 +29,28 @@ test('worldwide usa il globo SVG locale', () => {
 
 test('il muto conserva il volume radio e non viene annullato dalla sincronizzazione', () => {
  const sidebar=fs.readFileSync(path.join(__dirname,'..','sidebar.js'),'utf8');
- assert.match(sidebar,/radioMuted\|\|next<=0\.001/);
- assert.match(sidebar,/\^Disattiva audio\$\|\^Mute\$/i);
+ assert.match(sidebar,/lastAudibleVolume/);
+ assert.match(sidebar,/radioMuted\|\|commandedVolume<=\.001/);
+ assert.match(sidebar,/function isVolumeMuteButton\(button\)/);
+ assert.match(sidebar,/controlRect\.left-buttonRect\.right<48/);
+ assert.match(sidebar,/Spicetify\.Player\.setMute\?\.\(radioMuted\)/);
  assert.doesNotMatch(sidebar,/setTimeout\(\(\)=>syncVolume\(volumeControl\(\),true\),0\)/);
+});
+
+test('il volume usa un solo controllo coerente con il tema attivo', () => {
+ const root=path.join(__dirname,'..');
+ const sidebar=fs.readFileSync(path.join(root,'sidebar.js'),'utf8');
+ const index=fs.readFileSync(path.join(root,'index.js'),'utf8');
+ const css=fs.readFileSync(path.join(root,'style.css'),'utf8');
+ assert.match(sidebar,/attribute\.name\.startsWith\('data-wmpotify'\)/);
+ assert.match(sidebar,/getPropertyValue\('--wmp11-window'\)/);
+ assert.match(sidebar,/const bar=volumeBar\(\);if\(!bar\)return;installWmpotifyVolume\(bar\);syncVolume\(\)/);
+ assert.doesNotMatch(sidebar,/theme==='wmpotify'\?installWmpotifyVolume/);
+ assert.match(sidebar,/pointercancel/);
+ assert.doesNotMatch(sidebar,/document\.createElement\('input'\).*ri-radio-volume/);
+ assert.doesNotMatch(sidebar,/position:fixed!important;right:16px!important;bottom:34px!important/);
+ assert.doesNotMatch(index,/ri-react-volume|setVolume/);
+ assert.doesNotMatch(css,/ri-react-volume/);
 });
 
 test('RTL 102.5 usa il flusso Radio ufficiale di RTL Play per il brano in onda', () => {
