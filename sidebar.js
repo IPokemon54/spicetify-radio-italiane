@@ -77,10 +77,10 @@
   function ensureNowPlaying(){document.getElementById('ri-now-playing')?.remove();return nativeNowPlaying()}
   async function refreshRadioMetadata(force=false){
    if(!state.station||!radioMode())return;const id=state.station.id;
-   if(!force&&metadataStationId===id&&Date.now()-lastMetadataFetch<5000)return;
+   if(!force&&metadataStationId===id&&Date.now()-lastMetadataFetch<2000)return;
    if(metadataStationId!==id){currentRadioTrack=null;metadataStationId=id}
    lastMetadataFetch=Date.now();
-   try{const response=await fetch(BRIDGE.base+'/metadata/'+encodeURIComponent(id)+'?key='+encodeURIComponent(BRIDGE.key),{cache:'no-store'});if(!response.ok)return;const track=await response.json();if(state.station?.id!==id)return;currentRadioTrack=track?.title?track:null;updateRadioSidePanel(false)}catch{}
+   try{const response=await fetch(BRIDGE.base+'/metadata/'+encodeURIComponent(id)+'?key='+encodeURIComponent(BRIDGE.key),{cache:'no-store'});if(!response.ok)return;const track=await response.json();if(state.station?.id!==id)return;const nextTrack=track?.title?track:null;const fields=['raw','artist','title','artwork','kind','searchable'];if(currentRadioTrack===nextTrack||currentRadioTrack&&nextTrack&&fields.every(field=>currentRadioTrack[field]===nextTrack[field]))return;currentRadioTrack=nextTrack;updateRadioSidePanel(false)}catch{}
   }
   function updateRadioSidePanel(fetchMetadata=true){
    const host=document.getElementById('Desktop_PanelContainer_Id');if(!host)return;

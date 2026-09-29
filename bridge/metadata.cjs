@@ -75,6 +75,23 @@ async function loveFm(){
  const raw=decode(await response.text());if(!raw)return null;
  const track=splitTrack(raw);track.kind=track.artist?'song':'show';track.searchable=Boolean(track.artist);return track;
 }
+async function rdsTrack(){
+ const response=await fetch('https://cdnapi.rds.it/v3/site/get_player_info',{signal:AbortSignal.timeout(8000),headers:{'User-Agent':'Mozilla/5.0 RadioItaliane/2.0',Referer:'https://www.rds.it/'},cache:'no-store'});
+ if(!response.ok)throw Error('RDS player '+response.status);
+ const song=(await response.json())?.song_status?.current_song;
+ if(!song?.title)return null;
+ const artist=decode(song.artist||''),title=decode(song.title||'');
+ const isSong=song.type==='song';
+ return {raw:[artist,title].filter(Boolean).join(' - '),artist,title,artwork:song.cover||'',kind:isSong?'song':'show',searchable:isSong};
+}
+async function radioItaliaTrack(){
+ const response=await fetch('https://www.radioitalia.it/onAir',{signal:AbortSignal.timeout(8000),headers:{'User-Agent':'Mozilla/5.0 RadioItaliane/2.0',Referer:'https://www.radioitalia.it/'},cache:'no-store'});
+ if(!response.ok)throw Error('Radio Italia player '+response.status);
+ const item=await response.json(),artist=decode(item?.artist||''),title=decode(item?.title||'');
+ if(!title)return null;
+ const isSong=Boolean(artist);
+ return {raw:[artist,title].filter(Boolean).join(' - '),artist:artist||decode(item?.program||'Radio Italia'),title,artwork:item?.image||'',kind:isSong?'song':'show',searchable:isSong};
+}
 async function stationRadioId(station){
  if(stationIds.has(station.id))return stationIds.get(station.id);
  const response=await fetch(station.page,{signal:AbortSignal.timeout(10000),headers:{'User-Agent':'Mozilla/5.0 RadioItaliane/2.0'}});
@@ -96,7 +113,9 @@ async function myTuner(station){
  const track=splitTrack(decode(item.metadata));track.artwork=item.artwork_url_large||item.artwork_url_small||'';return track;
 }
 async function getMetadata(station){
- const saved=cache.get(station.id);if(saved&&Date.now()-saved.updated<10000)return saved.value;
+ const fastStations=new Set(['radio-italia','radio-rds']);
+ const cacheTtl=fastStations.has(station.id)?1500:10000;
+ const saved=cache.get(station.id);if(saved&&Date.now()-saved.updated<cacheTtl)return saved.value;
  let value=null;
  if(station.id==='radio-animati'){
   try{value=await radioAnimati()}catch{}
@@ -113,7 +132,12 @@ async function getMetadata(station){
  }else if(station.id==='love-fm'){
   try{value=await loveFm()}catch{}
   if(!value)try{value=await myTuner(station)}catch{}
+ }else if(station.id==='radio-rds'){
+  try{value=await rdsTrack()}catch{}
+ }else if(station.id==='radio-italia'){
+  try{value=await radioItaliaTrack()}catch{}
+  if(!value)try{value=await myTuner(station)}catch{}
  }else try{value=await myTuner(station)}catch{}
  cache.set(station.id,{updated:Date.now(),value});return value;
 }
-module.exports={getMetadata,splitTrack,rtl1025Track};
+module.exports={getMetadata,splitTrack,rtl1025Track,rdsTrack,radioItaliaTrack};

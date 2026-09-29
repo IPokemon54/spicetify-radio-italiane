@@ -41,6 +41,25 @@ test('RTL 102.5 usa il flusso Radio ufficiale di RTL Play per il brano in onda',
  assert.match(metadata,/present\.class!=='Music'/);
 });
 
+test('RDS usa il player ufficiale per il brano in onda', () => {
+ const metadata=fs.readFileSync(path.join(__dirname,'..','bridge','metadata.cjs'),'utf8');
+ assert.match(metadata,/cdnapi\.rds\.it\/v3\/site\/get_player_info/);
+ assert.match(metadata,/station\.id==='radio-rds'/);
+ assert.match(metadata,/song_status\?\.current_song/);
+});
+
+test('Radio Italia usa il player ufficiale per il brano in onda', () => {
+ const metadata=fs.readFileSync(path.join(__dirname,'..','bridge','metadata.cjs'),'utf8');
+ const sidebar=fs.readFileSync(path.join(__dirname,'..','sidebar.js'),'utf8');
+ assert.match(metadata,/www\.radioitalia\.it\/onAir/);
+ assert.match(metadata,/station\.id==='radio-italia'/);
+ assert.match(metadata,/item\?\.artist/);
+ assert.match(metadata,/if\(!value\)try\{value=await myTuner\(station\)\}/);
+ assert.match(metadata,/fastStations\.has\(station\.id\)\?1500:10000/);
+ assert.match(sidebar,/Date\.now\(\)-lastMetadataFetch<2000/);
+ assert.match(sidebar,/fields\.every\(field=>currentRadioTrack\[field\]===nextTrack\[field\]\)/);
+});
+
 test('una diretta interrotta viene riconnessa automaticamente', () => {
  const sidebar=fs.readFileSync(path.join(__dirname,'..','sidebar.js'),'utf8');
  assert.match(sidebar,/resumeWanted/);
