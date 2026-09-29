@@ -15,7 +15,8 @@ if (-not $PSScriptRoot -or -not (Test-Path -LiteralPath (Join-Path $PSScriptRoot
   $downloadedInstaller = Get-ChildItem -LiteralPath $downloadDir -Filter 'install.ps1' -Recurse | Select-Object -First 1
   if (-not $downloadedInstaller) { throw 'Installer non trovato nella release.' }
   Get-ChildItem -LiteralPath $downloadedInstaller.Directory.FullName -File -Recurse | Unblock-File -ErrorAction SilentlyContinue
-  & $downloadedInstaller.FullName
+  $powerShellExecutable = (Get-Process -Id $PID).Path
+  & $powerShellExecutable -NoProfile -ExecutionPolicy Bypass -File $downloadedInstaller.FullName
   if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) { throw 'Installazione non completata.' }
  } finally {
   if (Test-Path -LiteralPath $downloadDir) { Remove-Item -LiteralPath $downloadDir -Recurse -Force -ErrorAction SilentlyContinue }

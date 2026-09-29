@@ -46,7 +46,7 @@ Apri PowerShell e incolla questo comando:
 iwr -useb https://raw.githubusercontent.com/IPokemon54/spicetify-radio-italiane/main/install.ps1 | iex
 ```
 
-Il comando scarica l'ultima release, esegue l'installer e rimuove automaticamente i file temporanei. Prima di eseguirlo puoi leggere [install.ps1](install.ps1) direttamente nel repository.
+Il comando scarica l'ultima release, esegue l'installer in un processo con bypass limitato a quella sola esecuzione e rimuove automaticamente i file temporanei. Non modifica la Execution Policy permanente del computer. Prima di eseguirlo puoi leggere [install.ps1](install.ps1) direttamente nel repository.
 
 ### Requisiti
 
