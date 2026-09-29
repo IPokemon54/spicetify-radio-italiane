@@ -39,18 +39,29 @@ async function radioZeta(){
  const artwork=show.image_square?.[600]||show.image_square?.[400]||show.image?.[600]||show.image?.[400]||'';
  return {raw:show.name,artist:speakers||'Radio Zeta',title:show.name,artwork,kind:'show',searchable:false};
 }
-async function radioZetaTrack(){
+async function rtlEmbeddedTrack(master,label){
  const headers={'User-Agent':'Mozilla/5.0 RadioItaliane/2.0'};
- const master='https://dd782ed59e2a4e86aabf6fc508674b59.msvdn.net/live/S9346184/clhI2IJWRnn7/playlist_audio.m3u8';
- const load=async url=>{const response=await fetch(url,{signal:AbortSignal.timeout(8000),headers,cache:'no-store'});if(!response.ok)throw Error('Radio Zeta HLS '+response.status);return response};
+ const load=async url=>{const response=await fetch(url,{signal:AbortSignal.timeout(8000),headers,cache:'no-store'});if(!response.ok)throw Error(label+' HLS '+response.status);return response};
  const masterText=await (await load(master)).text();
- const variantLine=masterText.split(/\r?\n/).find(line=>line.trim()&&!line.startsWith('#'));if(!variantLine)throw Error('Playlist Radio Zeta non valida');
- const variant=new URL(variantLine.trim(),master).href,playlist=await (await load(variant)).text();
- const segments=playlist.split(/\r?\n/).filter(line=>line.trim()&&!line.startsWith('#'));if(!segments.length)throw Error('Segmento Radio Zeta assente');
+ const masterLines=masterText.split(/\r?\n/),streamIndex=masterLines.findIndex(line=>line.startsWith('#EXT-X-STREAM-INF'));
+ const variant=streamIndex>=0&&masterLines[streamIndex+1]?new URL(masterLines[streamIndex+1].trim(),master).href:master;
+ const playlist=variant===master?masterText:await (await load(variant)).text();
+ const segments=playlist.split(/\r?\n/).filter(line=>line.trim()&&!line.startsWith('#'));if(!segments.length)throw Error('Segmento '+label+' assente');
  const body=Buffer.from(await (await load(new URL(segments.at(-1).trim(),variant).href)).arrayBuffer()).toString('utf8');
  const start=body.indexOf('{"songInfo":');if(start<0)return null;const end=body.indexOf('\0',start);if(end<0)return null;
  const info=JSON.parse(body.slice(start,end)).songInfo,present=info?.present;if(!present||present.class!=='Music'||!present.mus_sng_title)return null;
  return {raw:[present.mus_art_name,present.mus_sng_title].filter(Boolean).join(' - '),artist:present.mus_art_name||'',title:present.mus_sng_title,artwork:present.mus_sng_itunescoverbig||'',kind:'song',searchable:true};
+}
+async function radioZetaTrack(){
+ return rtlEmbeddedTrack('https://dd782ed59e2a4e86aabf6fc508674b59.msvdn.net/live/S9346184/clhI2IJWRnn7/playlist_audio.m3u8','Radio Zeta');
+}
+async function rtl1025Track(){
+ const endpoint='https://cloud.rtl.it/api-play.rtl.it/media/1.0/live/1/radiovisione/-1/0/';
+ const response=await fetch(endpoint,{signal:AbortSignal.timeout(8000),headers:{'User-Agent':'Mozilla/5.0 RadioItaliane/2.0'},cache:'no-store'});
+ if(!response.ok)throw Error('RTL 102.5 player '+response.status);
+ const media=(await response.json())?.data?.mediaInfo;
+ const master=media?.descriptor?.find(item=>item?.type==='HLS')?.uri||media?.uri;if(!master)throw Error('Flusso Radio RTL 102.5 assente');
+ return rtlEmbeddedTrack(master,'RTL 102.5');
 }
 async function radioItaliaAnni60Roma(){
  const response=await fetch('https://titoli.fluidstream.it/anni60/titolo_rm.txt',{signal:AbortSignal.timeout(8000),headers:{'User-Agent':'Mozilla/5.0 RadioItaliane/2.0'},cache:'no-store'});
@@ -94,6 +105,8 @@ async function getMetadata(station){
   try{value=await radioZetaTrack()}catch{}
   if(!value)try{value=await myTuner(station)}catch{}
   if(!value)try{value=await radioZeta()}catch{}
+ }else if(station.id==='radio-rtl-1025'){
+  try{value=await rtl1025Track()}catch{}
  }else if(station.id==='radio-italia-anni-60-roma'){
   try{value=await radioItaliaAnni60Roma()}catch{}
   if(!value)try{value=await myTuner(station)}catch{}
@@ -103,4 +116,4 @@ async function getMetadata(station){
  }else try{value=await myTuner(station)}catch{}
  cache.set(station.id,{updated:Date.now(),value});return value;
 }
-module.exports={getMetadata,splitTrack};
+module.exports={getMetadata,splitTrack,rtl1025Track};

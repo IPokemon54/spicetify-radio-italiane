@@ -33,3 +33,10 @@ test('il muto conserva il volume radio e non viene annullato dalla sincronizzazi
  assert.match(sidebar,/\^Disattiva audio\$\|\^Mute\$/i);
  assert.doesNotMatch(sidebar,/setTimeout\(\(\)=>syncVolume\(volumeControl\(\),true\),0\)/);
 });
+
+test('RTL 102.5 usa il flusso Radio ufficiale di RTL Play per il brano in onda', () => {
+ const metadata=fs.readFileSync(path.join(__dirname,'..','bridge','metadata.cjs'),'utf8');
+ assert.match(metadata,/api-play\.rtl\.it\/media\/1\.0\/live\/1\/radiovisione\/-1\/0\//);
+ assert.match(metadata,/station\.id==='radio-rtl-1025'/);
+ assert.match(metadata,/present\.class!=='Music'/);
+});
