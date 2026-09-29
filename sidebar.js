@@ -12,7 +12,7 @@
  document.head.append(style);
 
  if(!window.RadioItalianePlayer){
-  const audio=document.getElementById('ri-radio-audio')||new Audio();audio.id='ri-radio-audio';audio.preload='none';audio.style.display='none';audio.setAttribute('aria-hidden','true');if(!audio.isConnected)document.body.append(audio);let state={station:null,status:'Scegli una radio',playing:false};let request=0,timer=null,ignoreSpotifyPause=false,fadingRadio=false,radioFadeTask=null,currentRadioTrack=null,metadataStationId=null,lastMetadataFetch=0;const listeners=new Set();
+  const audio=document.getElementById('ri-radio-audio')||new Audio();audio.id='ri-radio-audio';audio.preload='none';audio.style.display='none';audio.setAttribute('aria-hidden','true');if(!audio.isConnected)document.body.append(audio);let state={station:null,status:'Scegli una radio',playing:false};let request=0,timer=null,reconnectTimer=null,reconnectAttempts=0,resumeWanted=false,ignoreSpotifyPause=false,fadingRadio=false,radioFadeTask=null,currentRadioTrack=null,metadataStationId=null,lastMetadataFetch=0;const listeners=new Set();
   function emit(){document.body.classList.toggle('ri-radio-live',state.playing||state.status==='Connessione…');updateNowPlaying();syncNativeControls();protectLiveControls();for(const listener of listeners)listener({...state});window.dispatchEvent(new CustomEvent('ri:state',{detail:{...state}}))}
   function set(next){state={...state,...next};emit()}
   let commandedVolume=null,radioVolumeSlider=null,radioMuted=false;
@@ -161,7 +161,14 @@
     wrapped.riRadioWrapped=true;api[name]=wrapped;
    }
   }
-  function stop(message='In pausa'){request++;clearTimeout(timer);audio.onerror=null;audio.pause();audio.removeAttribute('src');audio.load();set({playing:false,status:message})}
+  function clearStream(message){request++;clearTimeout(timer);clearTimeout(reconnectTimer);audio.onerror=null;const wanted=resumeWanted;resumeWanted=false;audio.pause();audio.removeAttribute('src');audio.load();resumeWanted=wanted;set({playing:false,status:message})}
+  function stop(message='In pausa'){resumeWanted=false;reconnectAttempts=0;clearStream(message)}
+  function reconnect(ticket){
+   if(ticket!==request||!resumeWanted||!state.station)return;
+   clearTimeout(timer);clearTimeout(reconnectTimer);audio.onerror=null;audio.pause();audio.removeAttribute('src');audio.load();
+   const station=state.station,delay=Math.min(15000,1000*Math.pow(2,Math.min(reconnectAttempts++,4)));set({playing:false,status:'Riconnessione…'});
+   reconnectTimer=setTimeout(()=>{if(resumeWanted&&state.station?.id===station.id)play(station,true)},delay);
+  }
   const wait=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
   async function fadeSpotifyOut(){
    let playing=false,saved=.8;try{playing=Spicetify.Player.isPlaying();saved=Spicetify.Player.getVolume()}catch{}
@@ -180,16 +187,16 @@
     finally{fadingRadio=false;audio.volume=saved;radioFadeTask=null;syncVolume()}
    })();return radioFadeTask;
   }
-  async function play(station){
-   stop('Connessione…');state.station=station;state.status='Connessione…';currentRadioTrack=null;metadataStationId=station.id;lastMetadataFetch=0;emit();const ticket=request;
-   await fadeSpotifyOut();
+  async function play(station,reconnecting=false){
+   clearStream(reconnecting?'Riconnessione…':'Connessione…');resumeWanted=true;state.station=station;state.status=reconnecting?'Riconnessione…':'Connessione…';if(!reconnecting){reconnectAttempts=0;currentRadioTrack=null;metadataStationId=station.id;lastMetadataFetch=0}emit();const ticket=request;
+   if(!reconnecting)await fadeSpotifyOut();
    try{const health=await fetch(BRIDGE.base+'/health?key='+BRIDGE.key,{signal:AbortSignal.timeout(4000)});if(!health.ok||(await health.json()).version!==2)throw Error('bridge')}
-   catch{if(ticket===request)set({playing:false,status:'Servizio radio non avviato'});return}
+   catch{if(ticket===request)reconnect(ticket);return}
    if(ticket!==request)return;
-   const fail=()=>{if(ticket!==request)return;stop('Emittente temporaneamente non raggiungibile. Premi Play per riprovare.')};
+   const fail=()=>{if(ticket===request)reconnect(ticket)};
    timer=setTimeout(fail,90000);audio.onerror=fail;audio.src=BRIDGE.base+'/stream/'+encodeURIComponent(station.id)+'.mp3?key='+BRIDGE.key+'&request='+ticket+'&normalize='+(syncSpotifyNormalizationSetting()?'1':'0');syncVolume();audio.play().then(()=>syncVolume()).catch(fail);
   }
-  audio.onplaying=()=>{clearTimeout(timer);syncVolume();set({playing:true,status:'In diretta'})};audio.oncanplay=()=>syncVolume();audio.onpause=()=>{if(state.playing)set({playing:false,status:'In pausa'})};
+  audio.onplaying=()=>{clearTimeout(timer);reconnectAttempts=0;syncVolume();set({playing:true,status:'In diretta'})};audio.oncanplay=()=>syncVolume();audio.onpause=()=>{if(resumeWanted&&state.playing)reconnect(request)};audio.onended=()=>{if(resumeWanted&&state.playing)reconnect(request)};
   document.addEventListener('input',event=>{const control=volumeControl();if(control&&(event.target===control||control.contains(event.target)))syncVolume(control,true)},true);
   document.addEventListener('change',event=>{const control=volumeControl();if(control&&(event.target===control||control.contains(event.target)))syncVolume(control,true)},true);
   document.addEventListener('change',()=>setTimeout(syncSpotifyNormalizationSetting,0),true);

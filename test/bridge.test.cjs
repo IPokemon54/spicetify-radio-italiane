@@ -40,3 +40,11 @@ test('RTL 102.5 usa il flusso Radio ufficiale di RTL Play per il brano in onda',
  assert.match(metadata,/station\.id==='radio-rtl-1025'/);
  assert.match(metadata,/present\.class!=='Music'/);
 });
+
+test('una diretta interrotta viene riconnessa automaticamente', () => {
+ const sidebar=fs.readFileSync(path.join(__dirname,'..','sidebar.js'),'utf8');
+ assert.match(sidebar,/resumeWanted/);
+ assert.match(sidebar,/status:'Riconnessione…'/);
+ assert.match(sidebar,/audio\.onended=.*reconnect/);
+ assert.match(sidebar,/Math\.min\(15000,1000\*Math\.pow/);
+});
