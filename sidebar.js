@@ -57,7 +57,7 @@
    const bar=volumeBar();if(!bar||!bar.dataset.riRadioVolume)return;
    for(const progress of bar.querySelectorAll('[data-testid="progress-bar"],.x-progressBar-progressBar,.progress-bar')){
     if(!volumeSnapshots.has(progress))volumeSnapshots.set(progress,{progress:progress.style.getPropertyValue('--progress-bar-transform'),priority:progress.style.getPropertyPriority('--progress-bar-transform')});
-    progress.style.setProperty('--progress-bar-transform',`calc(-100% + ${shown*100}%)`,'important')
+    progress.style.setProperty('--progress-bar-transform',activeVolumeTheme==='wmpotify'?`${shown*100}%`:`calc(-100% + ${shown*100}%)`,'important')
    }
    const control=volumeControl(bar);if(control){rememberAttributes(control);control.setAttribute('aria-valuenow',String(shown));if('value'in control)control.value=String(shown)}
   }
