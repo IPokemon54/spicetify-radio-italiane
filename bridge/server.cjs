@@ -11,7 +11,8 @@ const {readConfig} = require('./config.cjs');
 const metadata = new Map();
 const relayReady=createRelay((id,value)=>{if(id)metadata.set(id,{value,updated:Date.now()})});
 const config = readConfig(path.join(__dirname, 'config.json'));
-const ffmpeg = path.join(__dirname, 'bin', 'ffmpeg.exe');
+const bundledFfmpeg = path.join(__dirname, 'bin', process.platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg');
+const ffmpeg = fs.existsSync(bundledFfmpeg) ? bundledFfmpeg : 'ffmpeg';
 const active = new Set();
 const origins = new Set(['https://xpui.app.spotify.com', 'https://zlink.app.spotify.com']);
 

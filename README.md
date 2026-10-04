@@ -40,6 +40,8 @@ Il servizio ascolta soltanto su 127.0.0.1, richiede una chiave locale e accetta 
 
 ### Installazione rapida
 
+#### Windows
+
 Apri PowerShell e incolla questo comando:
 
 ```powershell
@@ -48,11 +50,22 @@ iwr -useb https://raw.githubusercontent.com/IPokemon54/spicetify-radio-italiane/
 
 Il comando scarica l'ultima release, esegue l'installer in un processo con bypass limitato a quella sola esecuzione e rimuove automaticamente i file temporanei. Non modifica la Execution Policy permanente del computer. Prima di eseguirlo puoi leggere [install.ps1](install.ps1) direttamente nel repository.
 
+#### Linux/macOS (supporto sperimentale)
+
+Apri un terminale e incolla:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/IPokemon54/spicetify-radio-italiane/main/install.sh | bash
+```
+
+L'installer usa Node.js e FFmpeg già installati nel sistema, genera la configurazione locale, verifica `/health` e configura l'avvio automatico con `systemd --user` (o l'avvio automatico del desktop) su Linux e `launchd` su macOS. Questa procedura è stata controllata nel codice ma non ancora provata direttamente dentro Spotify su Linux e macOS: è quindi indicata come sperimentale finché non viene verificata sui due sistemi.
+
 ### Requisiti
 
-- Windows 10 o Windows 11.
+- Windows 10/11; in alternativa Linux o macOS con il supporto Bash sperimentale.
 - Applicazione desktop di Spotify.
 - Spicetify già installato e funzionante.
+- Su Linux/macOS: Bash, curl, unzip, Node.js 18 o successivo e FFmpeg disponibili nel `PATH`.
 
 ### Installazione dalla release
 
@@ -73,7 +86,7 @@ L'installer copia l'app nella cartella CustomApps di Spicetify, abilita il servi
 
 Se il bridge non parte, l'installer interrompe l'operazione e mostra il percorso del log diagnostico `bridge\service-error.log`. Il file di configurazione viene scritto in UTF-8 senza BOM su Windows PowerShell 5.1 e PowerShell 7; il bridge accetta anche configurazioni create in precedenza con BOM.
 
-Se PowerShell blocca lo script perché proviene da Internet, apri le proprietà di `install.ps1`, seleziona **Sblocca**, conferma e riprova. Non è necessario installare separatamente Node.js o FFmpeg: sono già inclusi nella release.
+Se PowerShell blocca lo script perché proviene da Internet, apri le proprietà di `install.ps1`, seleziona **Sblocca**, conferma e riprova. Su Windows non è necessario installare separatamente Node.js o FFmpeg: sono già inclusi nella release. Linux e macOS usano invece le installazioni di sistema.
 
 ### Aggiornamento
 

@@ -86,3 +86,23 @@ test('una diretta interrotta viene riconnessa automaticamente', () => {
  assert.match(sidebar,/audio\.onended=.*reconnect/);
  assert.match(sidebar,/Math\.min\(15000,1000\*Math\.pow/);
 });
+
+test('il player trova le informazioni radio anche senza la classe trackInfo mappata', () => {
+ const sidebar=fs.readFileSync(path.join(__dirname,'..','sidebar.js'),'utf8');
+ assert.match(sidebar,/while\(common&&common!==root&&artist&&!common\.contains\(artist\)\)/);
+ assert.match(sidebar,/\[data-ri-radio-info\]\{position:relative/);
+ assert.doesNotMatch(sidebar,/\.main-trackInfo-container\[data-ri-radio-info\]/);
+});
+
+test('il bridge e la release includono il supporto Bash sperimentale', () => {
+ const server=fs.readFileSync(path.join(__dirname,'..','bridge','server.cjs'),'utf8');
+ const installer=fs.readFileSync(path.join(__dirname,'..','install.sh'),'utf8');
+ const build=fs.readFileSync(path.join(__dirname,'..','build-release.ps1'),'utf8');
+ assert.match(server,/process\.platform === 'win32' \? 'ffmpeg\.exe' : 'ffmpeg'/);
+ assert.match(server,/fs\.existsSync\(bundledFfmpeg\) \? bundledFfmpeg : 'ffmpeg'/);
+ assert.match(installer,/systemctl --user restart radio-on-spotify\.service/);
+ assert.match(installer,/launchctl bootstrap/);
+ assert.match(installer,/health\?key=/);
+ assert.match(build,/'install\.sh'/);
+ assert.match(build,/'start-service\.sh'/);
+});
