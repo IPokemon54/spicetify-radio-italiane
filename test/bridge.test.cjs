@@ -106,3 +106,14 @@ test('il bridge e la release includono il supporto Bash sperimentale', () => {
  assert.match(build,/'install\.sh'/);
  assert.match(build,/'start-service\.sh'/);
 });
+
+test('il brano in onda viene aggiornato periodicamente durante la riproduzione', () => {
+ const sidebar=fs.readFileSync(path.join(__dirname,'..','sidebar.js'),'utf8');
+ assert.match(sidebar,/setInterval\(\(\)=>\{if\(state\.playing&&radioMode\(\)\)refreshRadioMetadata\(\)\},200000\)/);
+ assert.match(sidebar,/fields\.every\(field=>currentRadioTrack\[field\]===nextTrack\[field\]\)/);
+});
+
+test('un secondo clic sulla radio attiva ferma la riproduzione', () => {
+ const app=fs.readFileSync(path.join(__dirname,'..','index.js'),'utf8');
+ assert.match(app,/if\(playing&&current\?\.id===station\?\.id\)\{stop\(\);return\}/);
+});

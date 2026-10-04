@@ -252,7 +252,7 @@
    const check=()=>{if(!ignoreSpotifyPause&&state.playing&&Spicetify.Player.isPlaying())fadeRadioOut('Interrotta da Spotify')};
    check();setTimeout(check,80);setTimeout(check,250);
   }
-  installVolumeHooks();ensureRadioVolumeSlider();ensureNowPlaying();syncSpotifyNormalizationSetting();setInterval(()=>{installVolumeHooks();ensureRadioVolumeSlider();ensureNowPlaying();syncSpotifyNormalizationSetting();syncNativeControls();syncVolume()},250);syncVolume();window.addEventListener('ri-stations-changed',()=>updateRadioSidePanel(false));Spicetify.Player.addEventListener('onplaypause',handleSpotifyPlayback);Spicetify.Player.addEventListener('songchange',handleSpotifyPlayback);
+  installVolumeHooks();ensureRadioVolumeSlider();ensureNowPlaying();syncSpotifyNormalizationSetting();setInterval(()=>{installVolumeHooks();ensureRadioVolumeSlider();ensureNowPlaying();syncSpotifyNormalizationSetting();syncNativeControls();syncVolume()},250);setInterval(()=>{if(state.playing&&radioMode())refreshRadioMetadata()},200000);syncVolume();window.addEventListener('ri-stations-changed',()=>updateRadioSidePanel(false));Spicetify.Player.addEventListener('onplaypause',handleSpotifyPlayback);Spicetify.Player.addEventListener('songchange',handleSpotifyPlayback);
   window.RadioItalianePlayer={play,stop,setVolume:applyVolumeCommand,getState:()=>({...state}),getAudioLevel:()=>({volume:audio.volume,muted:audio.muted,theme:activeVolumeTheme}),subscribe(listener){listeners.add(listener);listener({...state});return()=>listeners.delete(listener)}};
  }
 
