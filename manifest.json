@@ -1,7 +1,7 @@
 {
   "name": "Radio on Spotify",
   "title": "Radio on Spotify",
-  "description": "Radio in diretta da tutto il mondo integrate nell'interfaccia di Spotify.",
+  "description": "Live radio stations from around the world, integrated directly into Spotify — not limited to Italian radio.",
   "preview": "assets/cover.png",
   "readme": "README.md",
   "tags": ["radio", "live", "worldwide"],
