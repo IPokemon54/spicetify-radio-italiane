@@ -7,10 +7,33 @@ function RadioPlaylist(){
  function publish(next){setStations(next);window.RI_STATIONS=next;window.dispatchEvent(new CustomEvent('ri-stations-changed'))}
  riReact.useEffect(()=>{fetch(api('/countries')).then(r=>r.json()).then(setCountries).catch(()=>setError('Impossibile caricare le nazioni'));return window.RadioItalianePlayer?.subscribe(setPlayerState)},[]);
  riReact.useEffect(()=>{if(!countries.length)return;const sync=entry=>{const location=entry?.location||entry||Spicetify.Platform.History.location,params=new URLSearchParams(location?.search||''),code=params.get('country');if(!code){setCountry(null);publish([]);setPage(0);setHasMore(false);setOrdering(false);return}const selected=countries.find(c=>c.code===code);if(selected)loadCountry(selected)};sync(Spicetify.Platform.History.location);return Spicetify.Platform.History.listen(sync)},[countries]);
- async function loadCountry(selected,nextPage=1,append=false){setLoading(true);setError('');try{const response=await fetch(api('/catalog/'+selected.code+'?page='+nextPage),{cache:'no-store'});if(!response.ok)throw Error();const data=await response.json(),combined=append?[...stations,...data.stations]:data.stations,next=applyOrder(combined,selected.code);setCountry(selected);publish(next);setPage(nextPage);setHasMore(data.hasMore);setQuery('')}catch{setError('Non riesco a caricare le radio di questa nazione. Riprova.')}finally{setLoading(false)}}
+ async function loadCountry(selected,nextPage=1,append=false){
+  setLoading(true);setError('');
+  try{
+   const cacheKey='ri-catalog-cache:'+selected.code;let cached={stations:[],pages:{},lastPage:0,hasMore:true};
+   try{const value=JSON.parse(localStorage.getItem(cacheKey)||'null');if(value&&Array.isArray(value.stations)&&value.pages)cached=value}catch{}
+   const combined=new Map(cached.stations.map(station=>[station.id,station])),loaded=new Set(),limit=nextPage*31;
+   let saved=[];try{const value=JSON.parse(localStorage.getItem(orderKey(selected.code))||'[]');if(Array.isArray(value))saved=value.slice(0,limit)}catch{}
+   const fetchPage=async number=>{
+    const response=await fetch(api('/catalog/'+selected.code+'?page='+number),{cache:'no-store'});if(!response.ok)throw Error();
+    const data=await response.json();loaded.add(number);
+    for(const station of data.stations){combined.set(station.id,station);cached.pages[station.id]=number}
+    if(number>=cached.lastPage){cached.lastPage=number;cached.hasMore=data.hasMore}
+   };
+   if(!append)await fetchPage(1);
+   while(cached.hasMore&&(combined.size<limit||saved.some(id=>!combined.has(id))))await fetchPage(cached.lastPage+1);
+   const wanted=applyOrder([...combined.values()],selected.code).slice(0,limit);
+   const needed=new Set(wanted.map(station=>cached.pages[station.id]).filter(Boolean));
+   for(const number of needed)if(!loaded.has(number))await fetchPage(number);
+   cached.stations=[...combined.values()];try{localStorage.setItem(cacheKey,JSON.stringify(cached))}catch{}
+   const ordered=applyOrder(cached.stations,selected.code);
+   setCountry(selected);publish(ordered.slice(0,limit));setPage(nextPage);setHasMore(ordered.length>limit||cached.hasMore);
+   setQuery('');
+  }catch{setError('Non riesco a caricare le radio di questa nazione. Riprova.')}finally{setLoading(false)}
+ }
  function chooseCountry(selected){Spicetify.Platform.History.push('/radio-italiane?country='+encodeURIComponent(selected.code))}
- function moveStation(fromId,toId){if(!fromId||fromId===toId)return;const next=[...stations],from=next.findIndex(s=>s.id===fromId),to=next.findIndex(s=>s.id===toId);if(from<0||to<0)return;const[moved]=next.splice(from,1);next.splice(to,0,moved);localStorage.setItem(orderKey(country.code),JSON.stringify(next.map(s=>s.id)));publish(next);setDragId(null)}
- function resetOrder(){localStorage.removeItem(orderKey(country.code));publish(applyOrder(stations,country.code));setOrdering(false)}
+ function moveStation(fromId,toId){if(!fromId||fromId===toId)return;const next=[...stations],from=next.findIndex(s=>s.id===fromId),to=next.findIndex(s=>s.id===toId);if(from<0||to<0)return;const[moved]=next.splice(from,1);next.splice(to,0,moved);let previous=[];try{const value=JSON.parse(localStorage.getItem(orderKey(country.code))||'[]');if(Array.isArray(value))previous=value}catch{}const ids=next.map(s=>s.id);localStorage.setItem(orderKey(country.code),JSON.stringify([...ids,...previous.filter(id=>!ids.includes(id))]));publish(next);setDragId(null)}
+ async function resetOrder(){localStorage.removeItem(orderKey(country.code));localStorage.removeItem('ri-catalog-cache:'+country.code);setOrdering(false);setDragId(null);await loadCountry(country)}
  function play(station){if(playing&&current?.id===station?.id){stop();return}window.RadioItalianePlayer?.play(station)}function stop(){window.RadioItalianePlayer?.stop()}function playIcon(on){return riEl('span',{className:'ri-control-icon '+(on?'ri-pause-icon':'ri-play-icon'),'aria-hidden':'true'})}function logo(s){return hasLogo(s)?api('/logo/'+encodeURIComponent(s.id))+'&v=6':window.RI_COVER}
  const rows=stations.filter(s=>s.name.toLocaleLowerCase().includes(query.toLocaleLowerCase())),visibleCountries=countries.filter(c=>c.name.toLocaleLowerCase().includes(countryQuery.trim().toLocaleLowerCase()));
  if(!country)return riEl('main',{className:'ri-app ri-world'},riEl('header',{className:'ri-hero'},riEl('img',{className:'ri-cover',src:window.RI_COVER,alt:'Radio dal mondo'}),riEl('div',null,riEl('p',{className:'ri-eyebrow'},'RADIO DAL MONDO'),riEl('h1',null,'Che radio vuoi sentire?'),riEl('p',null,'Scegli una nazione per caricare le sue stazioni radio.'))),riEl('div',{className:'ri-country-search'},riEl('input',{type:'search',placeholder:'Cerca una nazione…','aria-label':'Cerca una nazione',value:countryQuery,onChange:e=>setCountryQuery(e.target.value),autoFocus:true}),riEl('span',null,visibleCountries.length+' nazioni')),error&&riEl('p',{className:'ri-error'},error),riEl('section',{className:'ri-country-grid','aria-label':'Scegli la nazione'},...visibleCountries.map(c=>riEl('button',{key:c.code,className:'ri-country',onClick:()=>chooseCountry(c)},riEl('img',{className:'ri-flag',src:api('/flag/'+c.code),alt:'Bandiera '+c.name}),riEl('strong',null,c.name)))),!visibleCountries.length&&riEl('p',{className:'ri-empty'},'Nessuna nazione trovata.'));
