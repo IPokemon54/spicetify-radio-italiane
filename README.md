@@ -21,6 +21,8 @@ Se vuoi il pieno controllo della scaletta, Spotify resta la scelta migliore. Qua
 ## Funzioni principali
 
 - Radio in diretta organizzate per nazione, con ricerca della nazione e dell'emittente.
+- Ricerca su tutte le pagine del paese: mostra subito le stazioni note e consulta progressivamente le altre pagine. Cancellare la ricerca o cambiare paese interrompe la scansione; gli errori permettono di riprovare conservando i risultati.
+- Senza ricerca, la griglia rimane a gruppi di 31 schede e segue l'ordine personalizzato, anche se il catalogo ricercabile contiene altre stazioni.
 - Loghi delle radio e copertina dell'app come immagine di riserva.
 - Ordinamento personalizzato, salvato separatamente per ogni paese.
 - Radio successiva collegata ai comandi precedente e successivo di Spotify.

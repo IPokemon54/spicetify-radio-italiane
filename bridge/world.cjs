@@ -7,7 +7,7 @@ const raw=[
 const countries=raw.map(([code,name,flag,base])=>({code,name,flag,base})),dynamic=new Map();
 function clean(v=''){return v.replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;|&#x27;/g,"'").replace(/&#(\d+);/g,(_,n)=>String.fromCodePoint(Number(n))).replace(/<[^>]*>/g,'').trim()}
 function idFor(page){return'w-'+crypto.createHash('sha256').update(page).digest('hex').slice(0,20)}
-async function catalog(code,page=1,known=[]){const country=countries.find(x=>x.code===code);if(!country)throw Error('Paese sconosciuto');page=Math.max(1,Math.min(999,Number(page)||1));const url=country.base+'/' +(page>1?'?page='+page:'');const response=await fetch(url,{signal:AbortSignal.timeout(15000),headers:{'User-Agent':'Mozilla/5.0 RadioItaliane/3.0'}});if(!response.ok)throw Error('Catalogo HTTP '+response.status);const html=await response.text(),gridStart=html.indexOf('id="radio-grid-container"'),gridEnd=html.indexOf('</section>',gridStart),grid=gridStart>=0&&gridEnd>gridStart?html.slice(gridStart,gridEnd):html,byPage=new Map(known.map(x=>[x.page.replace(/\/$/,''),x])),items=[];const pattern=/<a\s+[^>]*href=["']([^"']+)["'][^>]*class=["'][^"']*radio-card__link[^"']*["'][^>]*title=["']([^"']*)["'][^>]*>[\s\S]*?<article[^>]*data-radio-id=["'](\d+)["'][^>]*>[\s\S]*?<img[^>]*?src=["']([^"']+)["'][\s\S]*?<\/article>\s*<\/a>/gi;for(const m of grid.matchAll(pattern)){const stationPage=new URL(clean(m[1]),country.base).href,existing=byPage.get(stationPage.replace(/\/$/,'')),scraped=clean(m[4]),scrapedLogo=/placeholder/i.test(scraped)?'':scraped;if(existing&&(!existing.logo||/placeholder/i.test(existing.logo)))existing.logo=scrapedLogo;const station=existing||{id:idFor(stationPage),name:clean(m[2]),page:stationPage,streams:[],logo:scrapedLogo,official:'',description:'Stazione radio in diretta da '+country.name+'.',country:code};station.country=code;dynamic.set(station.id,station);items.push(station)}if(code==='it'&&page===1){const animati=known.find(x=>x.id==='radio-animati');if(animati&&!items.some(x=>x.id===animati.id))items.unshift(animati)}const nums=[...html.matchAll(/[?&]page=(\d+)/g)].map(m=>Number(m[1])).filter(Number.isFinite),last=Math.max(page,...nums);return{country:{code,name:country.name,flag:country.flag},page,hasMore:page<last,stations:items}}
+async function catalog(code,page=1,known=[],signal){const country=countries.find(x=>x.code===code);if(!country)throw Error('Paese sconosciuto');page=Math.max(1,Math.min(999,Number(page)||1));const url=country.base+'/' +(page>1?'?page='+page:'');const response=await fetch(url,{signal:signal||AbortSignal.timeout(15000),headers:{'User-Agent':'Mozilla/5.0 RadioItaliane/3.0'}});if(!response.ok)throw Error('Catalogo HTTP '+response.status);const html=await response.text(),gridStart=html.indexOf('id="radio-grid-container"'),gridEnd=html.indexOf('</section>',gridStart),grid=gridStart>=0&&gridEnd>gridStart?html.slice(gridStart,gridEnd):html,byPage=new Map(known.map(x=>[x.page.replace(/\/$/,''),x])),items=[];const pattern=/<a\s+[^>]*href=["']([^"']+)["'][^>]*class=["'][^"']*radio-card__link[^"']*["'][^>]*title=["']([^"']*)["'][^>]*>[\s\S]*?<article[^>]*data-radio-id=["'](\d+)["'][^>]*>[\s\S]*?<img[^>]*?src=["']([^"']+)["'][\s\S]*?<\/article>\s*<\/a>/gi;for(const m of grid.matchAll(pattern)){const stationPage=new URL(clean(m[1]),country.base).href,existing=byPage.get(stationPage.replace(/\/$/,'')),scraped=clean(m[4]),scrapedLogo=/placeholder/i.test(scraped)?'':scraped;if(existing&&(!existing.logo||/placeholder/i.test(existing.logo)))existing.logo=scrapedLogo;const station=existing||{id:idFor(stationPage),name:clean(m[2]),page:stationPage,streams:[],logo:scrapedLogo,official:'',description:'Stazione radio in diretta da '+country.name+'.',country:code};station.country=code;dynamic.set(station.id,station);items.push(station)}if(code==='it'&&page===1){const animati=known.find(x=>x.id==='radio-animati');if(animati&&!items.some(x=>x.id===animati.id))items.unshift(animati)}const nums=[...html.matchAll(/[?&]page=(\d+)/g)].map(m=>Number(m[1])).filter(Number.isFinite),last=Math.max(page,...nums);return{country:{code,name:country.name,flag:country.flag},page,hasMore:page<last,stations:items}}
 const catalogCacheFile=path.join(__dirname,'catalog-cache.json');
 try{
  const saved=JSON.parse(fs.readFileSync(catalogCacheFile,'utf8').replace(/^\uFEFF/,''));
@@ -17,9 +17,25 @@ try{
   }catch{}
  }
 }catch{}
-async function persistentCatalog(...args){
- const result=await catalog(...args);
+function belongsTo(station,code){
+ if(station.country)return station.country===code;
+ const country=countries.find(item=>item.code===code);
+ try{return new URL(station.page).origin===new URL(country.base).origin||code==='it'&&station.id==='radio-animati'}catch{return false}
+}
+async function persistentCatalog(code,page=1,known=[],signal){
+ const number=Math.max(1,Math.min(999,Number(page)||1));
+ const country=countries.find(item=>item.code===code);if(!country)throw Error('Paese sconosciuto');
+ const local=[...dynamic.values(),...known].filter(station=>belongsTo(station,code));
+ const byPage=new Map(local.map(station=>[station.page.replace(/\/$/,''),station]));
+ let result;
+ try{result=await catalog(code,number,[...byPage.values()],signal)}
+ catch(error){
+  if(signal?.aborted)throw error;
+  if(number!==1||!local.length)throw error;
+  return{country:{code,name:country.name,flag:country.flag},page:1,hasMore:true,stations:[...new Map(local.map(station=>[station.id,station])).values()],retryPage:1,error:'Catalogo remoto non raggiungibile. Riprova.'};
+ }
  try{const temporary=catalogCacheFile+'.tmp';fs.writeFileSync(temporary,JSON.stringify([...dynamic.values()].filter(station=>station.id.startsWith('w-'))));fs.renameSync(temporary,catalogCacheFile)}catch{}
+ if(number===1){const merged=new Map(result.stations.map(station=>[station.id,station]));for(const station of local)if(!merged.has(station.id))merged.set(station.id,station);result.stations=[...merged.values()]}
  return result;
 }
 module.exports={countries,dynamic,catalog:persistentCatalog};
