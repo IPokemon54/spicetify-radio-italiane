@@ -104,7 +104,8 @@ test('il bridge e la release includono il supporto Bash sperimentale', () => {
  assert.match(installer,/launchctl bootstrap/);
  assert.match(installer,/health\?key=/);
  assert.match(build,/'install\.sh'/);
- assert.match(build,/'start-service\.sh'/);
+ assert.match(build,/'bridge\/start-service\.sh'/);
+ assert.match(installer,/download\/Radio-Italiane-Linux-v3\.zip/);
 });
 
 test('il brano in onda viene aggiornato periodicamente durante la riproduzione', () => {

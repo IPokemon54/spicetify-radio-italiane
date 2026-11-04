@@ -71,7 +71,7 @@ L'installer usa Node.js e FFmpeg già installati nel sistema, genera la configur
 
 ### Installazione dalla release
 
-1. Apri la pagina **Releases** del repository e scarica `Radio-Italiane-Windows-v3.zip`.
+1. Apri la pagina **Releases** del repository: su Windows scarica `Radio-Italiane-Windows-v3.zip`; su Linux/macOS scarica `Radio-Italiane-Linux-v3.zip` (sperimentale, richiede Node.js e FFmpeg di sistema) ed esegui `bash install.sh` dopo averlo estratto.
 2. Estrai completamente lo ZIP in una cartella. Non avviare l'installer direttamente dall'archivio compresso.
 3. Apri PowerShell nella cartella estratta.
 4. Esegui:

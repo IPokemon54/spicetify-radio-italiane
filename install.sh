@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-release_url="https://github.com/IPokemon54/spicetify-radio-italiane/releases/latest/download/Radio-Italiane-Windows-v3.zip"
+release_url="https://github.com/IPokemon54/spicetify-radio-italiane/releases/latest/download/Radio-Italiane-Linux-v3.zip"
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || pwd)"
 
 if [[ ! -f "$script_dir/manifest.json" ]]; then
