@@ -32,6 +32,8 @@ Se vuoi il pieno controllo della scaletta, Spotify resta la scelta migliore. Qua
 
 Il servizio locale legge gli indirizzi dei cataloghi internazionali collegati a radio-italiane.it e converte in diretta AAC, HLS e altri formati in MP3. Gli indirizzi si aggiornano all'ascolto e restano in cache per 15 minuti, con indirizzi di riserva nel catalogo.
 
+Le stazioni caricate dai cataloghi internazionali vengono conservate localmente in `bridge/catalog-cache.json`, cosi restano riconosciute anche dopo il riavvio del servizio. Il file contiene dati delle stazioni, non audio.
+
 Non salva file audio: usa buffer limitati in RAM e scarta i dati dopo l'ascolto. Stop e cambio radio chiudono il convertitore. La mappa dei segmenti HLS è limitata a 128 URL per sessione. La conversione usa CPU durante l'ascolto. Node e FFmpeg occupano circa 190 MiB su disco una sola volta; lo spazio non cresce ascoltando.
 
 Il servizio ascolta soltanto su 127.0.0.1, richiede una chiave locale e accetta solo le stazioni del catalogo. Non espone porte sulla rete locale. Node verifica i certificati HTTPS delle emittenti. Questa raccolta è locale al computer e non si sincronizza come playlist dell'account o tramite Spotify Connect.

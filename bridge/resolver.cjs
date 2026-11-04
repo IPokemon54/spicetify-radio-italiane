@@ -34,12 +34,35 @@ async function resolveStation(id, refresh = false) {
  const cached = cache.get(id);
  if (!refresh && cached && Date.now() - cached.time < 15 * 60 * 1000) return cached.urls;
  let urls = [];
+ // Prefer the endpoint advertised by Cecchetto's own player over the directory.
+ if (new URL(station.page).hostname === 'www.radio-italiane.it' && new URL(station.page).pathname.replace(/\/$/, '') === '/radio-cecchetto') {
+  try {
+   const response = await fetch('https://radiocecchetto.it/', {signal: AbortSignal.timeout(12000)});
+   if (!response.ok) throw new Error('Player ufficiale HTTP ' + response.status);
+   const html = await response.text();
+   const stream = html.match(/\bdata-stream=["']([^"']+)["']/i)?.[1]?.replaceAll('&amp;', '&');
+   if (stream && validStream(stream)) urls.push(stream);
+  } catch {}
+  urls.push('https://nr15.newradio.it/stream/9142');
+ }
+ if (new URL(station.page).hostname === 'www.radio-italiane.it' && new URL(station.page).pathname.replace(/\/$/, '') === '/radio-stella') {
+  try {
+   const response = await fetch('https://play.xdevel.com/13158', {signal: AbortSignal.timeout(12000)});
+   if (!response.ok) throw new Error('Player ufficiale HTTP ' + response.status);
+   const html = await response.text();
+   const raw = html.match(/window\.PLAYER_CONFIG\s*=\s*(\{[^\r\n]+\})\s*;/)?.[1];
+   const config = raw && JSON.parse(raw);
+   const sources = config?.stations?.[config.defaultStation]?.channel?.sources || [];
+   urls.push(...sources.map(item=>item.source).filter(validStream));
+  } catch {}
+  urls.push('https://stream6.xdevel.com/audio0s976787-1558/stream/icecast.audio');
+ }
  try {
   const response = await fetch(station.page, {signal: AbortSignal.timeout(12000)});
   if (!response.ok) throw new Error('Catalogo HTTP ' + response.status);
-  urls = decodeStreams(await response.text());
+  urls.push(...decodeStreams(await response.text()));
  } catch (error) {
-  if (!station.streams.length && !cached) throw error;
+  if (!urls.length && !station.streams.length && !cached) throw error;
  }
  urls = [...new Set([...urls, ...(cached?.urls || []), ...station.streams])].filter(validStream);
  if (!urls.length) throw new Error('Nessun flusso disponibile');

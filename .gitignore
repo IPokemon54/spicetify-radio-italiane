@@ -1,6 +1,8 @@
 bridge/bin/node.exe
 bridge/bin/ffmpeg.exe
 bridge/service.pid
+bridge/catalog-cache.json
+bridge/catalog-cache.json.tmp
 *.html
 zeta-js/
 app.js
