@@ -8,6 +8,7 @@ const {countries, catalog} = require('./world.cjs');
 const {createRelay} = require('./relay.cjs');
 const {getMetadata,splitTrack} = require('./metadata.cjs');
 const {readConfig} = require('./config.cjs');
+const checkUpdates = require('./updates.cjs').createUpdateChecker();
 const metadata = new Map();
 const relayReady=createRelay((id,value)=>{if(id)metadata.set(id,{value,updated:Date.now()})});
 const config = readConfig(path.join(__dirname, 'config.json'));
@@ -66,6 +67,7 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://127.0.0.1:' + config.port);
   if (req.method !== 'GET' || url.searchParams.get('key') !== config.key) {res.writeHead(403);res.end();return;}
   if (url.pathname === '/health') {res.writeHead(200, {'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify({ok:true,version:2,active:active.size}));return;}
+  if(url.pathname==='/updates'){const result=await checkUpdates();if(!res.destroyed){res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(result))}return}
   if(url.pathname==='/countries'){res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'public, max-age=86400'});res.end(JSON.stringify(countries));return}
   const catalogCode=/^\/catalog\/([a-z]+)$/.exec(url.pathname)?.[1];if(catalogCode){
    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);

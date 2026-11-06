@@ -1,6 +1,7 @@
 {
   "name": "Radio on Spotify",
   "title": "Radio on Spotify",
+  "version": "3.0.15",
   "description": "Live radio stations from around the world, integrated directly into Spotify — not limited to Italian radio.",
   "preview": "assets/cover.png",
   "readme": "README.md",

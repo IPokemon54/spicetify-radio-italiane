@@ -4,8 +4,8 @@ const fs=require('node:fs'),path=require('node:path'),net=require('node:net'),cr
 const root=path.join(__dirname,'..'),wait=ms=>new Promise(r=>setTimeout(r,ms));
 async function main(){
  const folder=fs.mkdtempSync(path.join(root,'dist/live-logos-')),bridge=path.join(folder,'bridge');fs.mkdirSync(bridge);fs.mkdirSync(path.join(folder,'assets'));
- for(const file of ['server.cjs','config.cjs','world.cjs','resolver.cjs','relay.cjs','metadata.cjs','stations.json'])fs.copyFileSync(path.join(root,'bridge',file),path.join(bridge,file));
- fs.cpSync(path.join(root,'bridge/vendor'),path.join(bridge,'vendor'),{recursive:true});fs.copyFileSync(path.join(root,'assets/cover.png'),path.join(folder,'assets/cover.png'));
+ for(const file of ['server.cjs','config.cjs','world.cjs','resolver.cjs','relay.cjs','metadata.cjs','updates.cjs','stations.json'])fs.copyFileSync(path.join(root,'bridge',file),path.join(bridge,file));
+ fs.cpSync(path.join(root,'bridge/vendor'),path.join(bridge,'vendor'),{recursive:true});fs.copyFileSync(path.join(root,'manifest.json'),path.join(folder,'manifest.json'));fs.copyFileSync(path.join(root,'assets/cover.png'),path.join(folder,'assets/cover.png'));
  const cover=fs.readFileSync(path.join(folder,'assets/cover.png'));
  const socket=net.createServer();await new Promise(r=>socket.listen(0,'127.0.0.1',r));const port=socket.address().port;await new Promise(r=>socket.close(r));
  const key=crypto.randomBytes(24).toString('hex');fs.writeFileSync(path.join(bridge,'config.json'),JSON.stringify({port,key}));

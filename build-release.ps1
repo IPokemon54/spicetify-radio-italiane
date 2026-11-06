@@ -2,7 +2,7 @@ $ErrorActionPreference = 'Stop'
 $dist = Join-Path $PSScriptRoot 'dist'
 New-Item -ItemType Directory -Force -Path $dist | Out-Null
 $rootFiles = 'index.js','style.css','manifest.json','README.md','cover.js','catalog.js','bridge-config.js','sidebar.js','radio-italiane-installed.js'
-$bridgeFiles = 'server.cjs','config.cjs','world.cjs','resolver.cjs','relay.cjs','metadata.cjs','config.json','stations.json','descriptions.it.json'
+$bridgeFiles = 'server.cjs','config.cjs','world.cjs','resolver.cjs','relay.cjs','metadata.cjs','updates.cjs','config.json','stations.json','descriptions.it.json'
 foreach ($platform in @('Windows','Linux')) {
  $releaseName = 'Radio-Italiane-' + $platform + '-v3'
  $workspace = Join-Path $dist ('stage-' + [guid]::NewGuid().ToString('N'))

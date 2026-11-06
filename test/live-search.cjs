@@ -7,8 +7,8 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
 async function freePort(){const s=net.createServer();await new Promise(r=>s.listen(0,'127.0.0.1',r));const port=s.address().port;await new Promise(r=>s.close(r));return port}
 async function main(){
  const folder=fs.mkdtempSync(path.join(root,'dist/live-search-')),bridge=path.join(folder,'bridge');fs.mkdirSync(bridge);
- for(const file of ['server.cjs','config.cjs','world.cjs','resolver.cjs','relay.cjs','metadata.cjs','stations.json'])fs.copyFileSync(path.join(root,'bridge',file),path.join(bridge,file));
- fs.cpSync(path.join(root,'bridge/vendor'),path.join(bridge,'vendor'),{recursive:true});fs.mkdirSync(path.join(bridge,'bin'));fs.copyFileSync(path.join(root,'bridge/bin/ffmpeg.exe'),path.join(bridge,'bin/ffmpeg.exe'));
+ for(const file of ['server.cjs','config.cjs','world.cjs','resolver.cjs','relay.cjs','metadata.cjs','updates.cjs','stations.json'])fs.copyFileSync(path.join(root,'bridge',file),path.join(bridge,file));
+ fs.cpSync(path.join(root,'bridge/vendor'),path.join(bridge,'vendor'),{recursive:true});fs.copyFileSync(path.join(root,'manifest.json'),path.join(folder,'manifest.json'));fs.mkdirSync(path.join(bridge,'bin'));fs.copyFileSync(path.join(root,'bridge/bin/ffmpeg.exe'),path.join(bridge,'bin/ffmpeg.exe'));
  const port=await freePort(),key=crypto.randomBytes(24).toString('hex'),base='http://127.0.0.1:'+port;
  fs.writeFileSync(path.join(bridge,'config.json'),JSON.stringify({port,key}));
  fs.writeFileSync(path.join(folder,'preload.cjs'),`const fs=require('fs');const original=fetch;global.fetch=async(input,options)=>{const u=new URL(String(input));if(u.hostname!=='127.0.0.1')fs.appendFileSync(${JSON.stringify(path.join(folder,'requests.log'))},u.href+'\\n');if(process.env.BLOCK_CATALOG==='1'&&u.pathname==='/'&&!u.hostname.endsWith('rtl.it'))throw Error('Catalog intentionally blocked after restart');return original(input,options)};`);

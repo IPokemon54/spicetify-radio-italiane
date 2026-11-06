@@ -24,6 +24,7 @@ Se vuoi il pieno controllo della scaletta, Spotify resta la scelta migliore. Qua
 - Ricerca su tutte le pagine del paese: mostra subito le stazioni note e consulta progressivamente le altre pagine. Cancellare la ricerca o cambiare paese interrompe la scansione; gli errori permettono di riprovare conservando i risultati.
 - Senza ricerca, la griglia rimane a gruppi di 31 schede e segue l'ordine personalizzato, anche se il catalogo ricercabile contiene altre stazioni.
 - Loghi delle radio e copertina dell'app come immagine di riserva.
+- Avviso quando e disponibile una nuova release, con versione installata e collegamento all'aggiornamento. Il controllo viene eseguito al massimo una volta all'ora e non installa automaticamente software.
 - Ordinamento personalizzato, salvato separatamente per ogni paese.
 - Radio successiva collegata ai comandi precedente e successivo di Spotify.
 - Informazioni sulla stazione e, quando disponibili, titolo e artista del brano in onda.
@@ -31,6 +32,8 @@ Se vuoi il pieno controllo della scaletta, Spotify resta la scelta migliore. Qua
 - Riproduzione continua mentre visiti altre sezioni dell'app.
 
 ## Funzionamento
+
+Il bridge legge la versione installata dal campo `version` di `manifest.json` e la confronta con l'ultima release stabile su GitHub. Per preparare una nuova release, aggiornare quel campo prima di eseguire `build-release.ps1`. L'avviso apre la pagina della release; l'aggiornamento si esegue tramite l'installer.
 
 Il servizio locale legge gli indirizzi dei cataloghi internazionali collegati a radio-italiane.it e converte in diretta AAC, HLS e altri formati in MP3. Gli indirizzi si aggiornano all'ascolto e restano in cache per 15 minuti, con indirizzi di riserva nel catalogo.
 
