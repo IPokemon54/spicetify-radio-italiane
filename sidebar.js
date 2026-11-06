@@ -134,7 +134,7 @@
    if(!radioMode()||!state.station){delete host.dataset.riRadioSide;host.querySelector('#ri-radio-side-panel')?.remove();return}
    host.dataset.riRadioSide='true';let panel=host.querySelector('#ri-radio-side-panel');
    if(!panel){panel=document.createElement('section');panel.id='ri-radio-side-panel';panel.innerHTML='<h2>Stai ascoltando</h2><img class="ri-side-cover" alt=""><h3></h3><p class="ri-side-status"></p><section class="ri-side-card"><h4>Informazioni sulla radio</h4><p class="ri-side-description"></p></section><section class="ri-side-card"><h4>Prossima in coda</h4><button class="ri-side-next"><img alt=""><span><strong></strong><small>Radio · In diretta</small></span></button></section><section class="ri-side-card ri-side-track-card" hidden><h4>Brano in onda</h4><button class="ri-side-track"><img class="ri-side-track-art" alt=""><span><strong></strong><small></small></span></button></section>';host.append(panel)}
-   const logo=url=>BRIDGE.base+'/logo/'+encodeURIComponent(url.id)+'?key='+encodeURIComponent(BRIDGE.key);const cover=panel.querySelector('.ri-side-cover');cover.src=logo(state.station);cover.alt='Logo '+state.station.name;
+   const logo=url=>BRIDGE.base+'/logo/'+encodeURIComponent(url.id)+'?key='+encodeURIComponent(BRIDGE.key)+'&v=7';const cover=panel.querySelector('.ri-side-cover');cover.src=logo(state.station);cover.alt='Logo '+state.station.name;
    panel.querySelector('h3').textContent=state.station.name;panel.querySelector('.ri-side-status').innerHTML='<span class="ri-side-live"></span>Radio Italiane · '+(state.playing?'In diretta':state.status);panel.querySelector('.ri-side-description').textContent=state.station.description||'Stazione radio italiana in streaming, disponibile in diretta nella tua raccolta.';
    const stations=window.RI_STATIONS||[];
    const index=stations.findIndex(station=>station.id===state.station.id);const next=stations.length?stations[(index<0?0:index+1)%stations.length]:null;const nextButton=panel.querySelector('.ri-side-next');
@@ -154,7 +154,7 @@
    if(!radioMode()||!state.station){restoreNowPlaying();return}
    if(!nativeNowPlayingSnapshot||nativeNowPlayingSnapshot.root!==current.root)nativeNowPlayingSnapshot={root:current.root,image:current.image?.src||'',srcset:current.image?.srcset||''};
    current.root.dataset.riNativeRadio='true';
-   if(current.image){current.image.src=BRIDGE.base+'/logo/'+encodeURIComponent(state.station.id)+'?key='+encodeURIComponent(BRIDGE.key);current.image.srcset='';current.image.alt='Logo '+state.station.name}
+   if(current.image){current.image.src=BRIDGE.base+'/logo/'+encodeURIComponent(state.station.id)+'?key='+encodeURIComponent(BRIDGE.key)+'&v=7';current.image.srcset='';current.image.alt='Logo '+state.station.name}
    if(current.info){current.info.dataset.riRadioInfo='true';current.info.dataset.riRadioTitle=state.station.name;current.info.dataset.riRadioStatus='Radio Italiane · '+(state.playing?'In diretta':state.status)}
   }
   function radioMode(){return Boolean(state.station&&state.status!=='Interrotta da Spotify')}
