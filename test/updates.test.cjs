@@ -28,8 +28,19 @@ test('rete assente e limiti GitHub sono silenziosi e consentono un nuovo tentati
 });
 test('il banner compare solo se esiste un aggiornamento e mostra entrambe le versioni',()=>{
  const source=fs.readFileSync(path.join(__dirname,'../index.js'),'utf8');
- const render=update=>{const ctx={riReact:{useState:()=>[update,()=>{}],useEffect(){}},riEl:(type,props,...children)=>({type,props,children})};vm.createContext(ctx);vm.runInContext(source.slice(source.indexOf('function RadioUpdateNotice('),source.indexOf('function RadioPlaylist(')),ctx);return ctx.RadioUpdateNotice()};
+ let opened=false;
+ const render=(update,userAgent='Windows')=>{const ctx={navigator:{userAgent},riReact:{useState:initial=>[initial===null?update:initial,()=>{}],useRef:()=>({current:{showModal(){opened=true}}}),useEffect(){}},riEl:(type,props,...children)=>({type,props,children})};vm.createContext(ctx);vm.runInContext(source.slice(source.indexOf('function RadioUpdateNotice('),source.indexOf('function RadioPlaylist(')),ctx);return ctx.RadioUpdateNotice()};
  assert.equal(render(null),null);assert.equal(render({updateAvailable:false}),null);
- const tree=render({updateAvailable:true,installedVersion:'3.0.14',latestVersion:'3.0.16',releaseUrl:'https://github.com/IPokemon54/spicetify-radio-italiane/releases/tag/v3.0.16'});
- assert.equal(tree.props.role,'status');assert.ok(JSON.stringify(tree).includes('3.0.14'));assert.ok(JSON.stringify(tree).includes('3.0.16'));assert.equal(tree.children[1].children[0],'Aggiorna');
+ const update={updateAvailable:true,installedVersion:'3.0.14',latestVersion:'3.0.16'};
+ const tree=render(update);
+ const [banner,button,dialog]=tree.children;
+ assert.equal(banner.props.role,'status');
+ assert.match(JSON.stringify(banner),/Installed version: 3\.0\.14/);
+ assert.match(JSON.stringify(banner),/Update available: 3\.0\.16/);
+ assert.equal(button.type,'button');
+ button.props.onClick();
+ assert.equal(opened,true);
+ assert.equal(dialog.type,'dialog');
+ assert.match(JSON.stringify(dialog),/install\.ps1 \| iex/);
+ assert.match(JSON.stringify(render(update,'Linux')),/install\.sh \| bash/);
 });

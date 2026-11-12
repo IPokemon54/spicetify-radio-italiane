@@ -27,6 +27,8 @@ function createRadioCatalog({fetchPage,order,onChange}){
 const riReact=Spicetify.React,riEl=riReact.createElement;
 function RadioUpdateNotice(){
  const [update,setUpdate]=riReact.useState(null);
+ const [copyStatus,setCopyStatus]=riReact.useState('');
+ const dialog=riReact.useRef(null);
  riReact.useEffect(()=>{
   let mounted=true,controller=null;
   async function check(){
@@ -37,7 +39,24 @@ function RadioUpdateNotice(){
   return()=>{mounted=false;clearInterval(timer);controller?.abort()};
  },[]);
  if(!update?.updateAvailable)return null;
- return riEl('section',{className:'ri-update-notice',role:'status'},riEl('div',null,riEl('strong',null,'Aggiornamento disponibile: '+update.latestVersion),riEl('p',null,'Versione installata: '+update.installedVersion)),riEl('a',{href:update.releaseUrl,target:'_blank',rel:'noopener noreferrer'},'Aggiorna'));
+ const windows=/Windows/i.test(navigator.userAgent);
+ const installer='https://raw.githubusercontent.com/IPokemon54/spicetify-radio-italiane/main/install';
+ const command=windows?'iwr -useb '+installer+'.ps1 | iex':'curl -fsSL '+installer+'.sh | bash';
+ async function copyCommand(){
+  try{await navigator.clipboard.writeText(command);setCopyStatus('Copied to clipboard.')}
+  catch{setCopyStatus('Select the command and copy it manually.')}
+ }
+ return riEl('section',{className:'ri-update-notice'},
+  riEl('div',{role:'status'},riEl('strong',null,'Update available: '+update.latestVersion),riEl('p',null,'Installed version: '+update.installedVersion)),
+  riEl('button',{type:'button','aria-haspopup':'dialog',onClick:()=>{setCopyStatus('');dialog.current.showModal()}},'Update'),
+  riEl('dialog',{className:'ri-update-dialog',ref:dialog,'aria-labelledby':'ri-update-title'},
+   riEl('h2',{id:'ri-update-title'},'Update available'),
+   riEl('p',null,'Radio on Spotify '+update.latestVersion+' is available. Run this command in '+(windows?'PowerShell':'Bash')+' to update.'),
+   riEl('pre',null,riEl('code',null,command)),
+   riEl('p',{role:'status'},copyStatus),
+   riEl('div',{className:'ri-update-actions'},
+    riEl('button',{type:'button',onClick:copyCommand},'Copy command'),
+    riEl('button',{type:'button',onClick:()=>dialog.current.close()},'Close'))));
 }
 function RadioPlaylist(){
  const [countries,setCountries]=riReact.useState([]),[country,setCountry]=riReact.useState(null),[countryQuery,setCountryQuery]=riReact.useState(''),[stations,setStations]=riReact.useState([]),[error,setError]=riReact.useState(''),[query,setQuery]=riReact.useState(''),[ordering,setOrdering]=riReact.useState(false),[dragId,setDragId]=riReact.useState(null);
