@@ -31,6 +31,12 @@ Se vuoi il pieno controllo della scaletta, Spotify resta la scelta migliore. Qua
 - Volume, muto, dissolvenza e normalizzazione integrati con Spotify.
 - Riproduzione continua mentre visiti altre sezioni dell'app.
 
+## Supporto a WMPotify
+
+Quando il tema [WMPotify](https://github.com/Ingan121/WMPotify) è attivo, Radio on Spotify adotta la palette chiara o scura della Home. La selezione delle nazioni usa tessere orizzontali, mentre la griglia delle stazioni riprende le copertine quadrate degli album, con il nome sotto.
+
+I controlli delle radio usano le icone Play/Pausa del tema. Il player in basso mostra il logo, il nome e lo stato della stazione; le regole grafiche dedicate si attivano solo con WMPotify. Il supporto è stato provato su Windows con il tema attivo; per installare il tema, consulta le compatibilità indicate nel suo repository.
+
 ## Funzionamento
 
 Il bridge legge la versione installata dal campo `version` di `manifest.json` e la confronta con l'ultima release stabile su GitHub. Per preparare una nuova release, aggiornare quel campo prima di eseguire `build-release.ps1`. L'avviso apre la pagina della release; l'aggiornamento si esegue tramite l'installer.

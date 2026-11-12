@@ -2,13 +2,15 @@
  if(!window.Spicetify?.Platform?.History||!globalThis.RI_BRIDGE?.base||!globalThis.RI_BRIDGE?.key){setTimeout(radioItalianeExtension,500);return}
  const BRIDGE=globalThis.RI_BRIDGE;
  const style=document.createElement('style');
- style.textContent=`#ri-library-entry{display:flex;align-items:center;gap:12px;width:calc(100% - 16px);max-height:64px;min-height:64px;overflow:hidden;flex:0 0 64px;margin:4px 8px;padding:8px;border:0;border-radius:5px;background:transparent;color:var(--spice-text,#fff);text-align:left;cursor:pointer}#ri-library-entry:hover{background:#ffffff12}#ri-library-entry .ri-mini-cover{display:block;object-fit:cover;width:48px;height:48px;flex-shrink:0;border-radius:4px}#ri-library-entry small{display:block;color:#aaa;margin-top:4px;font-size:12px}#ri-library-entry>span:last-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}[data-ri-native-nav="true"]{display:none!important}body.ri-radio-live [data-testid="playback-progressbar"],body.ri-radio-live .playback-progressbar,body.ri-radio-live [aria-label="Modifica stato"]{pointer-events:none!important;cursor:default!important;opacity:.55}[data-ri-radio-volume-host="true"]{position:relative!important}#ri-radio-volume{display:block;position:absolute!important;z-index:3;margin:0!important;padding:0!important;cursor:pointer;pointer-events:auto!important;appearance:none;-webkit-appearance:none;background:transparent!important}[data-ri-volume-native="true"]{opacity:0!important;pointer-events:none!important}#ri-radio-volume::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(90deg,var(--spice-button,#1ed760) 0 var(--ri-volume,100%),var(--spice-subtext,#777) var(--ri-volume,100%) 100%)}#ri-radio-volume::-webkit-slider-thumb{width:12px;height:12px;margin-top:-4px;border:0;border-radius:50%;appearance:none;-webkit-appearance:none;background:var(--spice-text,#fff);box-shadow:0 1px 4px #0008}[data-ri-radio-volume="true"],[data-ri-radio-volume="true"] .volume-bar__slider-container,[data-ri-radio-volume="true"] [role="slider"],[data-ri-radio-volume="true"] input[type="range"],[data-ri-radio-volume="true"] [data-testid="progress-bar"],[data-ri-radio-volume="true"] .progress-bar,[data-ri-radio-volume="true"] .x-progressBar-progressBar{pointer-events:auto!important}[data-ri-radio-volume="true"] .volume-bar__slider-container{opacity:1!important}#ri-now-playing{display:none;position:fixed;left:0;bottom:0;z-index:2147483646;align-items:center;gap:12px;width:330px;height:72px;padding:8px 14px 8px 8px;box-sizing:border-box;background:var(--spice-player,#181818);color:var(--spice-text,#fff);box-shadow:12px 0 18px var(--spice-player,#181818)}body.ri-radio-live #ri-now-playing{display:flex}#ri-now-playing img{width:56px;height:56px;flex:none;object-fit:contain;border-radius:4px;background:#fff}#ri-now-playing .ri-now-copy{min-width:0;flex:1;cursor:pointer}#ri-now-playing strong,#ri-now-playing small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#ri-now-playing strong{font-size:14px}#ri-now-playing small{margin-top:5px;color:var(--spice-subtext,#b3b3b3);font-size:11px}#ri-now-playing .ri-live-dot{display:inline-block;width:7px;height:7px;margin-right:5px;border-radius:50%;background:#1ed760;box-shadow:0 0 8px #1ed760}body.ri-radio-live button[data-ri-radio-play="true"] svg{visibility:hidden}body.ri-radio-live button[data-ri-radio-play="true"]:after{content:'Ⅱ';position:absolute;font-size:18px;font-weight:800}`;
- style.textContent+=`body.ri-radio-live button[data-ri-radio-play="true"]{position:relative}body.ri-radio-live button[data-ri-radio-play="true"]:after{content:'';inset:auto;left:calc(50% - 5px);top:50%;display:block;width:4px;height:16px;border-radius:1px;background:currentColor;box-shadow:7px 0 0 currentColor;transform:translateY(-50%);font-size:0}`;
+ style.textContent=`#ri-library-entry{display:flex;align-items:center;gap:12px;width:calc(100% - 16px);max-height:64px;min-height:64px;overflow:hidden;flex:0 0 64px;margin:4px 8px;padding:8px;border:0;border-radius:5px;background:transparent;color:var(--spice-text,#fff);text-align:left;cursor:pointer}#ri-library-entry:hover{background:#ffffff12}#ri-library-entry .ri-mini-cover{display:block;object-fit:cover;width:48px;height:48px;flex-shrink:0;border-radius:4px}#ri-library-entry small{display:block;color:#aaa;margin-top:4px;font-size:12px}#ri-library-entry>span:last-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}[data-ri-native-nav="true"]{display:none!important}body.ri-radio-live [data-testid="playback-progressbar"],body.ri-radio-live .playback-progressbar,body.ri-radio-live [aria-label="Modifica stato"]{pointer-events:none!important;cursor:default!important;opacity:.55}[data-ri-radio-volume-host="true"]{position:relative!important}#ri-radio-volume{display:block;position:absolute!important;z-index:3;margin:0!important;padding:0!important;cursor:pointer;pointer-events:auto!important;appearance:none;-webkit-appearance:none;background:transparent!important}[data-ri-volume-native="true"]{opacity:0!important;pointer-events:none!important}#ri-radio-volume::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(90deg,var(--spice-button,#1ed760) 0 var(--ri-volume,100%),var(--spice-subtext,#777) var(--ri-volume,100%) 100%)}#ri-radio-volume::-webkit-slider-thumb{width:12px;height:12px;margin-top:-4px;border:0;border-radius:50%;appearance:none;-webkit-appearance:none;background:var(--spice-text,#fff);box-shadow:0 1px 4px #0008}[data-ri-radio-volume="true"],[data-ri-radio-volume="true"] .volume-bar__slider-container,[data-ri-radio-volume="true"] [role="slider"],[data-ri-radio-volume="true"] input[type="range"],[data-ri-radio-volume="true"] [data-testid="progress-bar"],[data-ri-radio-volume="true"] .progress-bar,[data-ri-radio-volume="true"] .x-progressBar-progressBar{pointer-events:auto!important}[data-ri-radio-volume="true"] .volume-bar__slider-container{opacity:1!important}#ri-now-playing{display:none;position:fixed;left:0;bottom:0;z-index:2147483646;align-items:center;gap:12px;width:330px;height:72px;padding:8px 14px 8px 8px;box-sizing:border-box;background:var(--spice-player,#181818);color:var(--spice-text,#fff);box-shadow:12px 0 18px var(--spice-player,#181818)}body.ri-radio-live #ri-now-playing{display:flex}#ri-now-playing img{width:56px;height:56px;flex:none;object-fit:contain;border-radius:4px;background:#fff}#ri-now-playing .ri-now-copy{min-width:0;flex:1;cursor:pointer}#ri-now-playing strong,#ri-now-playing small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#ri-now-playing strong{font-size:14px}#ri-now-playing small{margin-top:5px;color:var(--spice-subtext,#b3b3b3);font-size:11px}#ri-now-playing .ri-live-dot{display:inline-block;width:7px;height:7px;margin-right:5px;border-radius:50%;background:#1ed760;box-shadow:0 0 8px #1ed760}body.ri-radio-live:not(.ri-wmpotify) button[data-ri-radio-play="true"] svg{visibility:hidden}body.ri-radio-live:not(.ri-wmpotify) button[data-ri-radio-play="true"]:after{content:'Ⅱ';position:absolute;font-size:18px;font-weight:800}`;
+ style.textContent+=`body.ri-radio-live:not(.ri-wmpotify) button[data-ri-radio-play="true"]{position:relative}body.ri-radio-live:not(.ri-wmpotify) button[data-ri-radio-play="true"]:after{content:'';inset:auto;left:calc(50% - 5px);top:50%;display:block;width:4px;height:16px;border-radius:1px;background:currentColor;box-shadow:7px 0 0 currentColor;transform:translateY(-50%);font-size:0}`;
  style.textContent+=`#ri-now-playing{display:none!important}`;
  style.textContent+=`[data-ri-radio-info]{position:relative;min-width:0}[data-ri-radio-info]>*{visibility:hidden!important}[data-ri-radio-info]:before,[data-ri-radio-info]:after{position:absolute;left:0;right:0;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;visibility:visible}[data-ri-radio-info]:before{content:attr(data-ri-radio-title);top:4px;color:var(--spice-text,#fff);font-size:14px;font-weight:500}[data-ri-radio-info]:after{content:attr(data-ri-radio-status);top:27px;color:var(--spice-subtext,#b3b3b3);font-size:11px}`;
  style.textContent+=`[data-ri-native-radio="true"] button[aria-label*="playlist" i],[data-ri-native-radio="true"] button[aria-label*="libreria" i],[data-ri-native-radio="true"] button[aria-label*="library" i]{display:none!important}`;
  style.textContent+=`#ri-library-entry .ri-mini-cover-wrap{display:block;width:48px;height:48px;flex:0 0 48px;overflow:hidden;border-radius:4px;background:#29324f;transform:translateX(-4px)}#ri-library-entry .ri-mini-cover-wrap .ri-mini-cover{width:100%;height:100%;margin:0;transform:none;pointer-events:none}`;
  style.textContent+=`#Desktop_PanelContainer_Id[data-ri-radio-side="true"]>*:not(#ri-radio-side-panel){display:none!important}#ri-radio-side-panel{box-sizing:border-box;height:100%;overflow:auto;padding:16px;color:var(--spice-text,#fff);background:var(--spice-main,#121212)}#ri-radio-side-panel h2{margin:4px 0 18px;font-size:16px}#ri-radio-side-panel .ri-side-cover{display:block;width:100%;aspect-ratio:1;object-fit:contain;border-radius:8px;background:#fff}#ri-radio-side-panel h3{margin:18px 0 5px;font-size:24px;line-height:1.15}#ri-radio-side-panel p{margin:0;color:var(--spice-subtext,#b3b3b3);font-size:14px}#ri-radio-side-panel .ri-side-live{display:inline-block;width:8px;height:8px;margin-right:7px;border-radius:50%;background:#1ed760;box-shadow:0 0 8px #1ed760}#ri-radio-side-panel .ri-side-card{margin-top:22px;padding:16px;border-radius:8px;background:var(--spice-card,#242424)}#ri-radio-side-panel .ri-side-card h4{margin:0 0 9px;font-size:16px}#ri-radio-side-panel .ri-side-card p{font-size:13px;line-height:1.45}#ri-radio-side-panel .ri-side-description{display:-webkit-box;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:4}#ri-radio-side-panel .ri-side-next,#ri-radio-side-panel .ri-side-track{display:flex;align-items:center;gap:12px;width:100%;margin-top:10px;padding:8px;border:0;border-radius:6px;background:transparent;color:inherit;text-align:left;cursor:pointer}#ri-radio-side-panel .ri-side-next:hover,#ri-radio-side-panel .ri-side-track:hover{background:#ffffff12}#ri-radio-side-panel .ri-side-next img,#ri-radio-side-panel .ri-side-track-art{width:48px;height:48px;flex:none;object-fit:cover;border-radius:4px;background:#181818}#ri-radio-side-panel .ri-side-next span,#ri-radio-side-panel .ri-side-track span:last-child{min-width:0}#ri-radio-side-panel .ri-side-next strong,#ri-radio-side-panel .ri-side-next small,#ri-radio-side-panel .ri-side-track strong,#ri-radio-side-panel .ri-side-track small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#ri-radio-side-panel .ri-side-next small,#ri-radio-side-panel .ri-side-track small{margin-top:4px;color:var(--spice-subtext,#b3b3b3)}#ri-radio-side-panel .ri-side-track-card[hidden]{display:none}`;
+ style.textContent+=`body.ri-wmpotify button[data-ri-radio-play="true"][data-ri-radio-state="play"]{background-image:var(--play)!important}body.ri-wmpotify button[data-ri-radio-play="true"][data-ri-radio-state="pause"]{background-image:var(--pause)!important}body.ri-wmpotify button[data-ri-radio-state="play"]:hover{background-image:var(--play-hover,var(--play))!important}body.ri-wmpotify button[data-ri-radio-state="pause"]:hover{background-image:var(--pause-hover,var(--pause))!important}body.ri-wmpotify button[data-ri-radio-state="play"]:active{background-image:var(--play-pressed,var(--play))!important}body.ri-wmpotify button[data-ri-radio-state="pause"]:active{background-image:var(--pause-pressed,var(--pause))!important}`;
+ style.textContent+=`body.ri-wmpotify [data-ri-radio-info]{display:flex!important;flex-direction:column;justify-content:center;align-self:center;width:clamp(100px,15vw,200px);min-width:0;min-height:0;height:auto;margin-block:0;overflow:hidden}body.ri-wmpotify [data-ri-radio-info]>*{display:none!important}body.ri-wmpotify [data-ri-radio-info]:before,body.ri-wmpotify [data-ri-radio-info]:after{position:static;line-height:14px;letter-spacing:0}body.ri-wmpotify [data-ri-radio-info]:before{font-size:12px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;white-space:normal;overflow-wrap:anywhere}body.ri-wmpotify [data-ri-radio-info]:after{font-size:11px}`;
  document.head.append(style);
 
  if(!window.RadioItalianePlayer){
@@ -92,6 +94,7 @@
   }
   function ensureRadioVolumeSlider(){
    const theme=wmpotifyActive()?'wmpotify':'base';if(theme!==activeVolumeTheme){restoreRadioVolumeControls();activeVolumeTheme=theme}
+   document.body.classList.toggle('ri-wmpotify',theme==='wmpotify');
    if(!radioMode()){restoreRadioVolumeControls();return}
    const bar=volumeBar();if(!bar)return;installWmpotifyVolume(bar);syncVolume()
   }
@@ -114,12 +117,16 @@
   }
   let nativeNowPlayingSnapshot=null;
   function nativeNowPlaying(){
-   const root=document.querySelector('[data-testid="now-playing-widget"],.main-nowPlayingWidget-nowPlaying');if(!root)return null;
+   const widget='[data-testid="now-playing-widget"],.main-nowPlayingWidget-nowPlaying';
+   const left=document.querySelector('.main-nowPlayingBar-left');
+   const root=left?(left.querySelector(widget)||left):document.querySelector(widget);if(!root)return null;
    const links=[...root.querySelectorAll('a')];
-   const title=root.querySelector('[data-testid="context-item-link"],.main-trackInfo-name a')||links[0],artist=root.querySelector('[data-testid="context-item-info-artist"],.main-trackInfo-artists a')||links[1];let common=title;
+   const title=root.querySelector('[data-testid="context-item-info-title"],[data-testid="context-item-link"],.main-trackInfo-name a')||links[0],artist=root.querySelector('[data-testid="context-item-info-subtitles"],[data-testid="context-item-info-artist"],.main-trackInfo-artists a')||links[1];let common=title;
    while(common&&common!==root&&artist&&!common.contains(artist))common=common.parentElement;
-   const info=root.querySelector('.main-trackInfo-container')||(common&&common!==root?common:null);
-   return {root,image:root.querySelector('img'),info,title,artist};
+   const cover=root.querySelector('[data-testid="CoverSlotCollapsed__container"]');
+   const adjacentInfo=cover?.parentElement===root&&cover.nextElementSibling?.textContent.trim()?cover.nextElementSibling:null;
+   const info=root.querySelector('.main-nowPlayingWidget-trackInfo,.main-trackInfo-container')||root.querySelector('.wmpotify-track-info')||adjacentInfo||(common&&common!==root?common:null);
+   return {root,image:cover?.querySelector('img')||root.querySelector('[data-testid="cover-art-button"] img,.main-nowPlayingWidget-coverArt img')||root.querySelector('img'),info,title,artist};
   }
   function ensureNowPlaying(){document.getElementById('ri-now-playing')?.remove();return nativeNowPlaying()}
   async function refreshRadioMetadata(force=false){
@@ -144,28 +151,43 @@
    if(fetchMetadata)refreshRadioMetadata();
   }
   function restoreNowPlaying(){
-   const saved=nativeNowPlayingSnapshot;if(!saved)return;const current=nativeNowPlaying();
-   if(current?.root===saved.root){delete current.root.dataset.riNativeRadio;if(current.image){current.image.src=saved.image;current.image.srcset=saved.srcset}if(current.info){delete current.info.dataset.riRadioInfo;delete current.info.dataset.riRadioTitle;delete current.info.dataset.riRadioStatus}}
+   const saved=nativeNowPlayingSnapshot;if(!saved)return;
+   delete saved.root.dataset.riNativeRadio;
+   if(saved.image&&saved.image.getAttribute('src')===saved.radioSrc){for(const [name,value] of Object.entries(saved.attributes)){if(value===null)saved.image.removeAttribute(name);else saved.image.setAttribute(name,value)}}
+   if(saved.info){delete saved.info.dataset.riRadioInfo;delete saved.info.dataset.riRadioTitle;delete saved.info.dataset.riRadioStatus}
    nativeNowPlayingSnapshot=null;
   }
   function updateNowPlaying(){
-   updateRadioSidePanel();
-   const current=ensureNowPlaying();if(!current)return;
+   updateRadioSidePanel();syncNowPlaying();
+  }
+  function syncNowPlaying(){
    if(!radioMode()||!state.station){restoreNowPlaying();return}
-   if(!nativeNowPlayingSnapshot||nativeNowPlayingSnapshot.root!==current.root)nativeNowPlayingSnapshot={root:current.root,image:current.image?.src||'',srcset:current.image?.srcset||''};
+   const current=ensureNowPlaying();if(!current)return;
+   const saved=nativeNowPlayingSnapshot;
+   if(!saved||saved.root!==current.root||saved.info!==current.info||saved.image!==current.image){
+    restoreNowPlaying();
+    nativeNowPlayingSnapshot={...current,attributes:Object.fromEntries(['src','srcset','alt'].map(name=>[name,current.image?.getAttribute(name)??null]))};
+   }
    current.root.dataset.riNativeRadio='true';
-   if(current.image){current.image.src=BRIDGE.base+'/logo/'+encodeURIComponent(state.station.id)+'?key='+encodeURIComponent(BRIDGE.key)+'&v=7';current.image.srcset='';current.image.alt='Logo '+state.station.name}
+   if(current.image){const radioSrc=BRIDGE.base+'/logo/'+encodeURIComponent(state.station.id)+'?key='+encodeURIComponent(BRIDGE.key)+'&v=7';if(current.image.getAttribute('src')!==radioSrc){if(nativeNowPlayingSnapshot.radioSrc&&current.image.getAttribute('src')!==nativeNowPlayingSnapshot.radioSrc)nativeNowPlayingSnapshot.attributes=Object.fromEntries(['src','srcset','alt'].map(name=>[name,current.image.getAttribute(name)]));current.image.src=radioSrc}nativeNowPlayingSnapshot.radioSrc=radioSrc;if(current.image.srcset)current.image.srcset='';if(current.image.alt!=='Logo '+state.station.name)current.image.alt='Logo '+state.station.name}
    if(current.info){current.info.dataset.riRadioInfo='true';current.info.dataset.riRadioTitle=state.station.name;current.info.dataset.riRadioStatus='Radio Italiane · '+(state.playing?'In diretta':state.status)}
   }
   function radioMode(){return Boolean(state.station&&state.status!=='Interrotta da Spotify')}
   function nativeButton(kind){
+   if(kind==='play'){const control=document.querySelector('button[data-testid="control-button-playpause"]');if(control)return control}
    const labels=kind==='play'?['Play','Riproduci','Pausa','Pause','Metti in pausa']:kind==='next'?['Avanti','Successivo','Next']:['Indietro','Precedente','Previous'];
-   return [...document.querySelectorAll('button')].find(button=>labels.includes(button.getAttribute('aria-label')))||null;
+   return [...document.querySelectorAll('button')].find(button=>isBottomPlayerButton(button)&&labels.includes(button.getAttribute('aria-label')))||null;
   }
+  const radioPlayLabels=new WeakMap();
   function syncNativeControls(){
-   for(const button of document.querySelectorAll('button[data-ri-radio-play="true"]')){if(!radioMode()){delete button.dataset.riRadioPlay;button.removeAttribute('data-ri-radio-play')}}
-   if(!radioMode())return;
-   const button=document.querySelector('button[data-ri-radio-play="true"]')||nativeButton('play');if(button){button.dataset.riRadioPlay='true';button.setAttribute('aria-label',state.playing?'Metti in pausa la radio':'Riproduci la radio')}
+   const button=radioMode()?(nativeButton('play')||document.querySelector('button[data-ri-radio-play="true"]')):null;
+   for(const old of document.querySelectorAll('button[data-ri-radio-play="true"]')){
+    if(old===button)continue;
+    const previous=radioPlayLabels.get(old);
+    if(['Metti in pausa la radio','Riproduci la radio'].includes(old.getAttribute('aria-label'))){if(previous==null)old.removeAttribute('aria-label');else old.setAttribute('aria-label',previous)}
+    radioPlayLabels.delete(old);delete old.dataset.riRadioPlay;delete old.dataset.riRadioState;
+   }
+   if(button){if(!radioPlayLabels.has(button))radioPlayLabels.set(button,button.getAttribute('aria-label'));button.dataset.riRadioPlay='true';button.dataset.riRadioState=state.playing?'pause':'play';button.setAttribute('aria-label',state.playing?'Metti in pausa la radio':'Riproduci la radio')}
   }
   function changeStation(delta){
    const stations=window.RI_STATIONS||[];if(!stations.length||!state.station)return;
@@ -252,7 +274,7 @@
    const check=()=>{if(!ignoreSpotifyPause&&state.playing&&Spicetify.Player.isPlaying())fadeRadioOut('Interrotta da Spotify')};
    check();setTimeout(check,80);setTimeout(check,250);
   }
-  installVolumeHooks();ensureRadioVolumeSlider();ensureNowPlaying();syncSpotifyNormalizationSetting();setInterval(()=>{installVolumeHooks();ensureRadioVolumeSlider();ensureNowPlaying();syncSpotifyNormalizationSetting();syncNativeControls();syncVolume()},250);setInterval(()=>{if(state.playing&&radioMode())refreshRadioMetadata()},200000);syncVolume();window.addEventListener('ri-stations-changed',()=>updateRadioSidePanel(false));Spicetify.Player.addEventListener('onplaypause',handleSpotifyPlayback);Spicetify.Player.addEventListener('songchange',handleSpotifyPlayback);
+  installVolumeHooks();ensureRadioVolumeSlider();ensureNowPlaying();syncSpotifyNormalizationSetting();setInterval(()=>{installVolumeHooks();ensureRadioVolumeSlider();syncNowPlaying();syncSpotifyNormalizationSetting();syncNativeControls();syncVolume()},250);setInterval(()=>{if(state.playing&&radioMode())refreshRadioMetadata()},200000);syncVolume();window.addEventListener('ri-stations-changed',()=>updateRadioSidePanel(false));Spicetify.Player.addEventListener('onplaypause',handleSpotifyPlayback);Spicetify.Player.addEventListener('songchange',handleSpotifyPlayback);
   window.RadioItalianePlayer={play,stop,setVolume:applyVolumeCommand,getState:()=>({...state}),getAudioLevel:()=>({volume:audio.volume,muted:audio.muted,theme:activeVolumeTheme}),subscribe(listener){listeners.add(listener);listener({...state});return()=>listeners.delete(listener)}};
  }
 
