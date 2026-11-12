@@ -13,7 +13,7 @@ async function main(){
  let child;const results={};
  async function stop(){if(!child)return;const current=child;child=null;const exited=new Promise(r=>current.once('exit',r));current.kill();await exited}
  async function start(fixture){child=spawn(process.execPath,['-r',path.join(folder,'fixture.cjs'),path.join(bridge,'server.cjs')],{env:{...process.env,LOGO_FIXTURE:fixture?'1':'0'},windowsHide:true,stdio:['ignore','ignore','pipe']});child.stderr.on('data',data=>fs.appendFileSync(path.join(folder,'stderr.log'),data));for(let i=0;i<50;i++){try{const r=await fetch('http://127.0.0.1:'+port+'/health?key='+key);if(r.ok)return}catch{}await wait(100)}throw Error('Test bridge did not start')}
- async function logo(id){const r=await fetch('http://127.0.0.1:'+port+'/logo/'+id+'?key='+key+'&v=7',{signal:AbortSignal.timeout(30000)});const body=Buffer.from(await r.arrayBuffer());return{status:r.status,type:r.headers.get('content-type'),cache:r.headers.get('cache-control'),body}}
+ async function logo(id){const r=await fetch('http://127.0.0.1:'+port+'/logo/'+id+'?key='+key+'&v=8',{signal:AbortSignal.timeout(30000)});const body=Buffer.from(await r.arrayBuffer());return{status:r.status,type:r.headers.get('content-type'),cache:r.headers.get('cache-control'),body}}
  try{
   await start(true);
   const fallback=await logo('radio-cuore');assert.equal(fallback.status,200);assert.equal(fallback.cache,'no-store');assert.ok(fallback.body.equals(cover));

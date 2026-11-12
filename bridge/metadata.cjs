@@ -137,6 +137,20 @@ async function getMetadata(station){
  }else if(station.id==='radio-italia'){
   try{value=await radioItaliaTrack()}catch{}
   if(!value)try{value=await myTuner(station)}catch{}
+ }else if(/^https:\/\/www\.radio-italiane\.it\/radio-cecchetto\/?$/.test(station.page||'')){
+  try{
+   const response=await fetch('https://radiocecchetto.it/api/now-playing',{signal:AbortSignal.timeout(5000),cache:'no-store'});
+   if(response.ok){
+    const data=await response.json();
+    if(data.ok&&typeof data.track?.title==='string'&&data.track.title.trim())value=splitTrack(decode(data.track.title));
+   }
+  }catch{}
+  try{
+   const catalogTrack=await myTuner(station);
+   const normalize=value=>value.normalize('NFKC').trim().toLowerCase();
+   if(!value)value=catalogTrack;
+   else if(value.artist&&catalogTrack?.artwork&&normalize(value.artist)===normalize(catalogTrack.artist)&&normalize(value.title)===normalize(catalogTrack.title))value.artwork=catalogTrack.artwork;
+  }catch{}
  }else try{value=await myTuner(station)}catch{}
  cache.set(station.id,{updated:Date.now(),value});return value;
 }

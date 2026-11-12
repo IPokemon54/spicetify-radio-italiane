@@ -91,5 +91,11 @@ async function resolveLogo(id) {
  logoCache.set(id, {time:Date.now(), url:logo.href});
  return logo.href;
 }
+function logoSources(value) {
+ const url = new URL(value);
+ if (url.hostname !== 'static.mytuner.mobi' || !/^\/media\/radios-\d+px\//.test(url.pathname)) return [value];
+ url.pathname = url.pathname.replace(/^\/media\/radios-\d+px\//, '/media/tvos_radios/');
+ return [url.href, value];
+}
 function findStation(id){return stations.find(s=>s.id===id)||dynamic.get(id)}
-module.exports = {stations, findStation, decodeStreams, validStream, resolveStation, resolveLogo};
+module.exports = {stations, findStation, decodeStreams, validStream, resolveStation, resolveLogo, logoSources};

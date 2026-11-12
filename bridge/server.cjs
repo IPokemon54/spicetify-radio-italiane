@@ -3,7 +3,7 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const {spawn} = require('node:child_process');
-const {stations, findStation, resolveStation, resolveLogo} = require('./resolver.cjs');
+const {stations, findStation, resolveStation, resolveLogo, logoSources} = require('./resolver.cjs');
 const {countries, catalog} = require('./world.cjs');
 const {createRelay} = require('./relay.cjs');
 const {getMetadata,splitTrack} = require('./metadata.cjs');
@@ -81,7 +81,7 @@ const server = http.createServer(async (req, res) => {
   const logoId = /^\/logo\/([a-z0-9-]+)$/.exec(url.pathname)?.[1];
   if (logoId) {
    const station = findStation(logoId);if (!station) {res.writeHead(404);res.end();return;}
-   try{const response = await fetch(await resolveLogo(logoId), {signal:AbortSignal.timeout(12000),headers:{'User-Agent':'Mozilla/5.0 RadioItaliane/3.0','Referer':station.page}});if(!response.ok)throw Error();const body=Buffer.from(await response.arrayBuffer());if(!body.length||body.length>2*1024*1024)throw Error();let type=response.headers.get('content-type')||'';if(!type.startsWith('image/')){if(body.subarray(0,3).equals(Buffer.from([0xff,0xd8,0xff])))type='image/jpeg';else if(body.subarray(0,8).equals(Buffer.from([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a])))type='image/png';else if(body.subarray(0,4).toString()==='RIFF'&&body.subarray(8,12).toString()==='WEBP')type='image/webp';else throw Error()}res.writeHead(200,{'Content-Type':type,'Content-Length':body.length,'Cache-Control':'public, max-age=86400','X-Content-Type-Options':'nosniff'});res.end(body)}catch{const body=fs.readFileSync(path.join(__dirname,'..','assets','cover.png'));res.writeHead(200,{'Content-Type':'image/png','Content-Length':body.length,'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(body)}return;
+   try{const sources=logoSources(await resolveLogo(logoId));for(const [index,source] of sources.entries()){try{const response = await fetch(source, {signal:AbortSignal.timeout(12000),headers:{'User-Agent':'Mozilla/5.0 RadioItaliane/3.0','Referer':station.page}});if(!response.ok)throw Error();const body=Buffer.from(await response.arrayBuffer());if(!body.length||body.length>2*1024*1024)throw Error();let type=response.headers.get('content-type')||'';if(!type.startsWith('image/')){if(body.subarray(0,3).equals(Buffer.from([0xff,0xd8,0xff])))type='image/jpeg';else if(body.subarray(0,8).equals(Buffer.from([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a])))type='image/png';else if(body.subarray(0,4).toString()==='RIFF'&&body.subarray(8,12).toString()==='WEBP')type='image/webp';else throw Error()}res.writeHead(200,{'Content-Type':type,'Content-Length':body.length,'Cache-Control':index===0?'public, max-age=86400':'public, max-age=300','X-Content-Type-Options':'nosniff'});res.end(body);return}catch{}}}catch{}const body=fs.readFileSync(path.join(__dirname,'..','assets','cover.png'));res.writeHead(200,{'Content-Type':'image/png','Content-Length':body.length,'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(body);return;
   }
   const id = /^\/stream\/([a-z0-9-]+)\.mp3$/.exec(url.pathname)?.[1];
   const station = findStation(id);
