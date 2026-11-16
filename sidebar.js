@@ -195,14 +195,21 @@
   }
   function isBottomPlayerButton(button){
    if(button.dataset.riRadioPlay==='true')return true;
-   if(button.closest('[data-testid="now-playing-bar"],.main-nowPlayingBar-nowPlayingBar,footer'))return true;
+   if(button.closest('[data-testid="now-playing-bar"],.main-nowPlayingBar-nowPlayingBar,.player-controls,footer'))return true;
    const rect=button.getBoundingClientRect();return rect.bottom>=window.innerHeight-4&&rect.top>window.innerHeight-120;
   }
   document.addEventListener('click',event=>{
    if(!radioMode())return;const button=event.target.closest('button');if(!button)return;
    if(!isBottomPlayerButton(button))return;
    if(button.dataset.riRadioPlay==='true'||['Play','Riproduci','Pausa','Pause','Metti in pausa','Metti in pausa la radio','Riproduci la radio'].includes(button.getAttribute('aria-label'))){event.preventDefault();event.stopImmediatePropagation();state.playing?stop():play(state.station);return}
-   const label=button.getAttribute('aria-label');if(['Avanti','Successivo','Next'].includes(label)){event.preventDefault();event.stopImmediatePropagation();changeStation(1)}else if(['Indietro','Precedente','Previous'].includes(label)){event.preventDefault();event.stopImmediatePropagation();changeStation(-1)}
+   const control=button.getAttribute('data-testid');
+   const label=button.getAttribute('aria-label')?.trim()||'';
+   const next=control==='control-button-skip-forward'||/^(Avanti|Successivo|Next)(?:\s|$)/i.test(label);
+   const previous=control==='control-button-skip-back'||/^(Indietro|Precedente|Previous)(?:\s|$)/i.test(label);
+   if(!next&&!previous)return;
+   event.preventDefault();
+   event.stopImmediatePropagation();
+   changeStation(next?1:-1);
   },true);
   document.addEventListener('pointerdown',event=>{
    if(!radioMode()||event.target.closest?.('button'))return;
