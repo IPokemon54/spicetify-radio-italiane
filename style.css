@@ -46,11 +46,27 @@ body.ri-wmpotify .ri-card-copy strong{font-size:14px;font-weight:400;line-height
 body.ri-wmpotify .ri-card-copy small{font-size:12px;color:var(--ri-wmp-muted)}
 body.ri-wmpotify .ri-active .ri-logo-button{outline:1px solid var(--item-selection-border,var(--wmp11-text-hilight,#2871e9));outline-offset:1px}
 body.ri-wmpotify .ri-drag-handle{top:6px;right:6px;transform:none}
-.ri-update-dialog{box-sizing:border-box;width:min(560px,calc(100vw - 32px));padding:24px;border:1px solid var(--ri-wmp-border,var(--spice-subtext,#b3b3b3));border-radius:8px;background:var(--ri-wmp-tile,var(--spice-card,#242424));color:var(--ri-wmp-text,var(--spice-text,#fff))}
+.ri-update-dialog{box-sizing:border-box;width:min(620px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:24px;border:1px solid var(--ri-wmp-border,var(--spice-subtext,#b3b3b3));border-radius:12px;background:var(--ri-wmp-tile,var(--spice-card,#242424));color:var(--ri-wmp-text,var(--spice-text,#fff));box-shadow:0 24px 80px #0008}
 .ri-update-dialog::backdrop{background:#0009}
 .ri-update-dialog h2{margin:0 0 12px;font-size:22px}
 .ri-update-dialog pre{padding:12px;background:#0002;white-space:pre-wrap;overflow-wrap:anywhere;user-select:text}
 .ri-update-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-top:16px}
+.ri-update-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px}
+.ri-update-dialog .ri-update-heading h2{margin:0 0 6px}
+.ri-update-dialog .ri-update-heading p{margin:0}
+.ri-update-dialog .ri-update-close{min-width:32px;min-height:32px;padding:0;border-radius:50%;font-size:22px}
+.ri-update-steps{list-style:none;counter-reset:update-step;margin:0;padding:0}
+.ri-update-steps>li{counter-increment:update-step;position:relative;padding:0 0 22px 44px}
+.ri-update-steps>li:last-child{padding-bottom:0}
+.ri-update-steps>li:before{content:counter(update-step);position:absolute;left:0;top:0;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--ri-wmp-hover-tile,var(--spice-main,#121212));color:var(--ri-wmp-text,var(--spice-text,#fff));font-size:12px;font-weight:700}
+.ri-update-steps strong{display:block;line-height:28px;font-size:14px}
+.ri-update-dialog .ri-update-steps p{margin:4px 0 0;line-height:1.5}
+.ri-update-command{margin-top:10px;border:1px solid var(--ri-wmp-border,var(--spice-subtext,#777));border-radius:8px;overflow:hidden}
+.ri-update-command-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:var(--ri-wmp-hover-tile,var(--spice-main,#121212));font-size:12px}
+.ri-update-dialog .ri-update-command pre{margin:0;padding:12px;font:12px/1.6 Consolas,monospace}
+.ri-update-copy-status:empty{display:none}
+body.ri-wmpotify .ri-update-dialog,body.ri-wmpotify .ri-update-command{border-radius:2px}
+@media(max-width:480px){.ri-update-dialog{padding:16px}.ri-update-steps>li{padding-left:36px}.ri-update-dialog h2{font-size:19px}}
 
 .ri-station-cover{position:relative}
 .ri-app .ri-station-cover .ri-card-favorite{position:absolute;inset:6px 6px auto auto;z-index:3;display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:#121212;color:#fff}

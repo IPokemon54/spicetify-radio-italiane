@@ -50,13 +50,24 @@ function RadioUpdateNotice(){
   riEl('div',{role:'status'},riEl('strong',null,'Update available: '+update.latestVersion),riEl('p',null,'Installed version: '+update.installedVersion)),
   riEl('button',{type:'button','aria-haspopup':'dialog',onClick:()=>{setCopyStatus('');dialog.current.showModal()}},'Update'),
   riEl('dialog',{className:'ri-update-dialog',ref:dialog,'aria-labelledby':'ri-update-title'},
-   riEl('h2',{id:'ri-update-title'},'Update available'),
-   riEl('p',null,'Radio on Spotify '+update.latestVersion+' is available. Run this command in '+(windows?'PowerShell':'Bash')+' to update.'),
-   riEl('pre',null,riEl('code',null,command)),
-   riEl('p',{role:'status'},copyStatus),
+   riEl('header',{className:'ri-update-heading'},
+    riEl('div',null,riEl('h2',{id:'ri-update-title'},'Update Radio on Spotify'),
+     riEl('p',null,update.installedVersion+' → '+update.latestVersion)),
+    riEl('button',{type:'button',className:'ri-update-close','aria-label':'Close update instructions',onClick:()=>dialog.current.close()},'×')),
+   riEl('ol',{className:'ri-update-steps'},
+    riEl('li',null,riEl('strong',null,'Copy the update command'),
+     riEl('div',{className:'ri-update-command'},
+      riEl('div',{className:'ri-update-command-heading'},riEl('span',null,windows?'PowerShell':'Bash'),riEl('button',{type:'button',onClick:copyCommand},'Copy command')),
+      riEl('pre',null,riEl('code',null,command))),
+     riEl('p',{className:'ri-update-copy-status',role:'status'},copyStatus)),
+    riEl('li',null,riEl('strong',null,windows?'Open PowerShell':'Open Terminal'),
+     riEl('p',null,windows?'Open Start, search for PowerShell and launch it.':'Open Terminal and use a Bash shell.')),
+    riEl('li',null,riEl('strong',null,'Run the update'),
+     riEl('p',null,'Paste the command, press Enter and wait for the installer to confirm completion.')),
+    riEl('li',null,riEl('strong',null,'Reopen Spotify'),
+     riEl('p',null,'Close Spotify completely, open it again and return to Radio on Spotify.'))),
    riEl('div',{className:'ri-update-actions'},
-    riEl('button',{type:'button',onClick:copyCommand},'Copy command'),
-    riEl('button',{type:'button',onClick:()=>dialog.current.close()},'Close'))));
+    riEl('button',{type:'button',onClick:()=>dialog.current.close()},'Done'))));
 }
 function RadioPlaylist(){
  const [countries,setCountries]=riReact.useState([]),[country,setCountry]=riReact.useState(null),[countryQuery,setCountryQuery]=riReact.useState(''),[stations,setStations]=riReact.useState([]),[error,setError]=riReact.useState(''),[query,setQuery]=riReact.useState(''),[ordering,setOrdering]=riReact.useState(false),[dragId,setDragId]=riReact.useState(null);
