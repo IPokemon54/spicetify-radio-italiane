@@ -110,30 +110,7 @@ Scarica la nuova release, estraila in una cartella nuova ed esegui nuovamente `i
 Su Windows, incolla questo blocco in PowerShell per rimuovere Radio on Spotify, fermare il bridge ed eliminare i suoi file locali, inclusa la cache del catalogo e le dipendenze incluse:
 
 ```powershell
-$ErrorActionPreference = 'Stop'
-$radioConfig = (& spicetify -c | Select-Object -Last 1).Trim()
-if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $radioConfig -PathType Leaf)) {
- throw 'Configurazione Spicetify non trovata.'
-}
-$radioRoot = Split-Path $radioConfig
-$radioApp = [IO.Path]::GetFullPath((Join-Path $radioRoot 'CustomApps\radio-italiane'))
-$radioParent = [IO.Path]::GetFullPath((Join-Path $radioRoot 'CustomApps'))
-if ((Split-Path $radioApp) -ne $radioParent) { throw 'Percorso app non valido.' }
-$radioServer = Join-Path $radioApp 'bridge\server.cjs'
-Get-CimInstance Win32_Process -Filter "Name='node.exe'" |
- Where-Object { $_.CommandLine -and $_.CommandLine.Contains($radioServer) } |
- ForEach-Object { & taskkill.exe /PID $_.ProcessId /T /F }
-spicetify config custom_apps radio-italiane-
-if ($LASTEXITCODE -ne 0) { throw 'Rimozione app dalla configurazione fallita.' }
-spicetify config extensions radio-italiane-installed.js-
-if ($LASTEXITCODE -ne 0) { throw 'Rimozione estensione dalla configurazione fallita.' }
-$radioStartup = Join-Path ([Environment]::GetFolderPath('Startup')) 'Radio Italiane.vbs'
-Remove-Item -LiteralPath $radioStartup -Force -ErrorAction SilentlyContinue
-$radioMarker = Join-Path $radioRoot 'Extensions\radio-italiane-installed.js'
-Remove-Item -LiteralPath $radioMarker -Force -ErrorAction SilentlyContinue
-if (Test-Path -LiteralPath $radioApp) { Remove-Item -LiteralPath $radioApp -Recurse -Force }
-spicetify apply
-if ($LASTEXITCODE -ne 0) { throw 'Applicazione Spicetify fallita.' }
+iwr -useb https://raw.githubusercontent.com/IPokemon54/spicetify-radio-italiane/main/uninstall.ps1 | iex
 ```
 
 Al termine chiudi completamente Spotify e riaprilo.
