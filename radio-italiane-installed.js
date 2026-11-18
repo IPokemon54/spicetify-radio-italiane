@@ -1,5 +1,7 @@
 (function radioOnSpotifyInstalledApp(){
+ if(window.__radioOnSpotifyInstalledApp)return;
  if(!window.Spicetify?.LocalStorage||!Array.isArray(Spicetify.Config?.custom_apps)){setTimeout(radioOnSpotifyInstalledApp,500);return}
+ window.__radioOnSpotifyInstalledApp=true;
  const listKey='marketplace:installed-extensions';
  const oldKey='marketplace:installed:local/radio-italiane/radio-italiane-installed.js';
  function withoutMarker(raw){

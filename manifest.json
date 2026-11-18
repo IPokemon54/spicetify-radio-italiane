@@ -1,7 +1,7 @@
 {
   "name": "Radio on Spotify",
   "title": "Radio on Spotify",
-  "version": "3.0.19",
+  "version": "3.0.20",
   "description": "Live radio stations from around the world, integrated directly into Spotify — not limited to Italian radio.",
   "preview": "assets/cover.png",
   "readme": "README.md",
@@ -17,6 +17,7 @@
     "cover.js",
     "catalog.js",
     "bridge-config.js",
-    "sidebar.js"
+    "sidebar.js",
+    "radio-italiane-installed.js"
   ]
 }

@@ -97,5 +97,6 @@ if [[ "$healthy" != true ]]; then
 fi
 
 spicetify config custom_apps radio-italiane
+spicetify config extensions radio-italiane-installed.js-
 spicetify apply
 echo "Radio on Spotify installata. Bridge verificato e avvio automatico configurato."

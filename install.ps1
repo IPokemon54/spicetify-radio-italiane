@@ -81,6 +81,8 @@ if (-not $radioHealthy) {
 }
 & spicetify config custom_apps radio-italiane
 if ($LASTEXITCODE -ne 0) { throw 'Configurazione Spicetify fallita.' }
+& spicetify config extensions radio-italiane-installed.js-
+if ($LASTEXITCODE -ne 0) { throw 'Migrazione indicatore Marketplace fallita.' }
 & spicetify apply
 if ($LASTEXITCODE -ne 0) { throw 'Applicazione Spicetify fallita.' }
 Write-Host 'Radio on Spotify installata. Bridge verificato e abilitato al login.'
